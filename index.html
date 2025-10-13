@@ -1,131 +1,446 @@
-import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Card } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Heart, Search, Shuffle, ChevronLeft, ChevronRight } from 'lucide-react';
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>我們的婚紗｜相片集</title>
+  <meta name="description" content="精緻浪漫的婚紗相片集 — 高質感靜態網頁畫廊，支援瀏覽、投影片、收藏、搜尋與下載。" />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+
+  <style>
+    /* ===== 設定變數 ===== */
+    :root{
+      --bg:#0f0f10;
+      --card:#0f1720;
+      --muted:#9aa5b1;
+      --accent:#f6d0d6; /* 溫柔粉 */
+      --accent-2:#8ecae6; /* 淡藍 */
+      --glass: rgba(255,255,255,0.06);
+      --radius:14px;
+      --maxwidth:1200px;
+      --gutter:14px;
+      --transition:250ms ease;
+      font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+
+    /* ===== 全體 ===== */
+    html,body{height:100%;}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,#050507 0%, #0b0b0d 40%);
+      color:#f3f6f8;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      padding:32px 18px;
+      display:flex;
+      justify-content:center;
+      align-items:flex-start;
+      box-sizing:border-box;
+    }
+
+    /* ===== 置中容器 ===== */
+    .wrap{
+      width:100%;
+      max-width:var(--maxwidth);
+      margin:0 auto;
+    }
+
+    header{
+      display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px;
+    }
+
+    .brand{
+      display:flex;align-items:center;gap:12px;
+    }
+    .logo{
+      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      box-shadow:0 6px 30px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b0b0d;font-size:18px;
+      transform:rotate(-8deg);
+    }
+    h1{margin:0;font-family:"Playfair Display", "Noto Serif TC", serif;font-size:20px;letter-spacing:0.6px;}
+    .subtitle{color:var(--muted);font-size:13px}
+
+    /* ===== 控制列 ===== */
+    .controls{
+      display:flex;gap:10px;align-items:center;
+    }
+    .btn{
+      background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:10px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition);
+    }
+    .btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+
+    .search{
+      display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted);
+    }
+    .search input{background:transparent;border:0;outline:0;color:inherit;width:220px}
+
+    /* ===== 資訊列 ===== */
+    .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 20px;color:var(--muted);font-size:14px}
+
+    /* ===== 瀑布排列（masonry-like） ===== */
+    .gallery{
+      column-count:3;column-gap:var(--gutter);
+    }
+    @media (max-width:1000px){.gallery{column-count:2}}
+    @media (max-width:640px){.gallery{column-count:1}}
+
+    .card{
+      display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
+      box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition);
+    }
+    .card:hover{transform:translateY(-6px)}
+
+    .thumb{display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b}
+    .caption{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,rgba(0,0,0,0.45),rgba(0,0,0,0.25));backdrop-filter: blur(6px);padding:8px 10px;border-radius:999px;font-size:13px}
+
+    .meta{display:flex;gap:8px;align-items:center}
+    .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px}
+    .heart.active{color:#ff6b81}
+
+    /* ===== Lightbox/Modal ===== */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px}
+    .modal.open{display:flex}
+    .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px}
+    .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b}
+    .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block}
+    .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px}
+
+    .modal .controls-row{display:flex;gap:8px}
+    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+
+    /* ===== footer ===== */
+    footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* small helpers */
+    .muted{color:var(--muted)}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">K&amp;S</div>
+        <div>
+          <h1>Ke Jason &amp; Phoebe</h1>
+          <div class="subtitle">2026.01.24 • 我們的婚紗相片</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
+          <input id="searchInput" placeholder="搜尋（地點/詞）..." />
+        </div>
+        <button class="btn" id="shuffleBtn" title="隨機排列">隨機</button>
+        <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>
+        <button class="btn" id="slideshowBtn" title="投影片模式">投影片播放</button>
+      </div>
+    </header>
+
+    <div class="info-row">
+      <div class="tag">共 <span id="totalCount">0</span> 張</div>
+      <div class="muted">|</div>
+      <div class="muted">瀏覽：可鍵盤左右切換、空白暫停、自動播放</div>
+    </div>
+
+    <main>
+      <section id="gallery" class="gallery" aria-live="polite"></section>
+    </main>
+
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-label="圖片預覽">
+        <div class="modal-left">
+          <button class="icon-btn" id="prevBtn" title="上一張">◀</button>
+          <img id="modalImg" src="" alt="" />
+          <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
+        </div>
+        <aside class="modal-right">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="muted" id="modalIndex">0 / 0</div>
+            <div class="meta">
+              <button class="icon-btn" id="closeBtn">關閉</button>
+              <button class="icon-btn" id="downloadBtn">下載</button>
+            </div>
+          </div>
+          <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div>
+          <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
+          <div style="margin-top:12px">
+            <button class="btn" id="toggleFav">加入最愛</button>
+            <button class="btn" id="openFull">開啟原始尺寸</button>
+          </div>
+          <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div>
+        </aside>
+      </div>
+    </div>
+
+    <footer>若要部署：將此檔案與 photo 資料夾一起上傳到 GitHub Pages、Netlify 或任何靜態網站空間。</footer>
+  </div>
+
+  <script>
+/* ===== 1. 準備圖片資料 ===== */
+const items = [];
+const TOTAL = 150; // 可依實際數量修改
+for (let i = 1; i <= TOTAL; i++) {
+  const num = String(i).padStart(3, '0');
+  // jpg
+  items.push({
+    id: `jpg-${num}`,
+    title: `Photo ${num}.jpg`,
+    desc: `拍攝地點 / 小註記 ${num}`,
+    thumb: `photos/thumb/photo${num}.jpg`,
+    full: `photos/full/photo${num}.jpg`,
+    tags: [(i % 3 === 0) ? '外景' : '棚拍']
+  });
+  // png
+  items.push({
+    id: `png-${num}`,
+    title: `Photo ${num}.png`,
+    desc: `拍攝地點 / 小註記 ${num}`,
+    thumb: `photos/thumb/photo${num}.png`,
+    full: `photos/full/photo${num}.png`,
+    tags: [(i % 2 === 0) ? '黑白' : '彩色']
+  });
+}
 
 const PHOTOS_PER_PAGE = 20;
 
-export default function WeddingGallery() {
-  const [photos, setPhotos] = useState([]);
-  const [favorites, setFavorites] = useState([]);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [page, setPage] = useState(1);
-  const [filteredPhotos, setFilteredPhotos] = useState([]);
+/* ===== 2. DOM ===== */
+const gallery = document.getElementById('gallery');
+const totalCount = document.getElementById('totalCount');
+const searchInput = document.getElementById('searchInput');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const favoritesBtn = document.getElementById('favoritesBtn');
+const slideshowBtn = document.getElementById('slideshowBtn');
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const modalIndex = document.getElementById('modalIndex');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const closeBtn = document.getElementById('closeBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const toggleFav = document.getElementById('toggleFav');
+const openFull = document.getElementById('openFull');
 
-  // 初始化讀取 jpg 與 png
-  useEffect(() => {
-    const items = [];
-    for (let i = 1; i <= 150; i++) {
-      const num = i.toString().padStart(3, '0');
-      items.push({
-        id: `jpg-${num}`,
-        thumb: `/photos/thumb/photo${num}.jpg`,
-        full: `/photos/full/photo${num}.jpg`,
-      });
-      items.push({
-        id: `png-${num}`,
-        thumb: `/photos/thumb/photo${num}.png`,
-        full: `/photos/full/photo${num}.png`,
-      });
-    }
-    setPhotos(items);
-  }, []);
+/* ===== 3. 狀態 ===== */
+let state = {
+  items: items.slice(),
+  filtered: items.slice(),
+  displayed: [], // 實際顯示的子集
+  page: 1,
+  idx: 0,
+  playing: false,
+  favorites: new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'))
+};
 
-  // 搜尋與篩選
-  useEffect(() => {
-    const filtered = photos.filter(
-      (p) => p.full.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredPhotos(filtered);
-  }, [photos, searchTerm]);
-
-  // 分頁邏輯
-  const totalPages = Math.ceil(filteredPhotos.length / PHOTOS_PER_PAGE);
-  const displayedPhotos = filteredPhotos.slice(
-    (page - 1) * PHOTOS_PER_PAGE,
-    page * PHOTOS_PER_PAGE
-  );
-
-  // 收藏功能
-  const toggleFavorite = (id) => {
-    setFavorites((prev) =>
-      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
-    );
-  };
-
-  // 隨機排列
-  const shufflePhotos = () => {
-    setFilteredPhotos((prev) => [...prev].sort(() => Math.random() - 0.5));
-  };
-
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-white to-blue-100 p-6">
-      <div className="max-w-6xl mx-auto">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-700">💍 Wedding Gallery</h1>
-          <div className="flex gap-2">
-            <input
-              type="text"
-              placeholder="搜尋照片..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border border-gray-300 rounded-xl px-3 py-2"
-            />
-            <Button onClick={shufflePhotos} variant="outline">
-              <Shuffle className="w-4 h-4 mr-1" /> 隨機排列
-            </Button>
-          </div>
-        </div>
-
-        {/* 瀑布流相簿 */}
-        <motion.div layout className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {displayedPhotos.map((photo) => (
-            <Card
-              key={photo.id}
-              className="overflow-hidden shadow-lg relative group hover:scale-105 transition-transform"
-            >
-              <img
-                src={photo.thumb}
-                alt={photo.id}
-                loading="lazy"
-                className="w-full h-48 object-cover"
-              />
-              <button
-                onClick={() => toggleFavorite(photo.id)}
-                className="absolute top-2 right-2 bg-white/80 rounded-full p-1"
-              >
-                <Heart
-                  className={`w-5 h-5 transition-colors ${
-                    favorites.includes(photo.id)
-                      ? 'text-red-500 fill-red-500'
-                      : 'text-gray-400'
-                  }`}
-                />
-              </button>
-            </Card>
-          ))}
-        </motion.div>
-
-        {/* 分頁按鈕 */}
-        <div className="flex justify-center items-center gap-4 mt-8">
-          <Button
-            onClick={() => setPage((p) => Math.max(p - 1, 1))}
-            disabled={page === 1}
-          >
-            <ChevronLeft className="w-4 h-4" /> 上一頁
-          </Button>
-          <span className="text-gray-600">
-            第 {page} / {totalPages} 頁
-          </span>
-          <Button
-            onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
-            disabled={page === totalPages}
-          >
-            下一頁 <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-      </div>
-    </div>
-  );
+/* ===== 4. 分頁載入 ===== */
+function loadNextPage() {
+  const start = (state.page - 1) * PHOTOS_PER_PAGE;
+  const end = state.page * PHOTOS_PER_PAGE;
+  const nextChunk = state.filtered.slice(start, end);
+  if (nextChunk.length === 0) return;
+  renderGallery(nextChunk, true); // append 模式
+  state.page++;
 }
+
+/* ===== 5. 畫廊渲染 ===== */
+function renderGallery(list, append = false) {
+  if (!append) {
+    gallery.innerHTML = '';
+    state.page = 1;
+    state.displayed = [];
+  }
+  list.forEach((it, i) => {
+    const card = document.createElement('figure');
+    card.className = 'card';
+    card.dataset.index = state.displayed.length + i;
+    card.dataset.id = it.id;
+    card.dataset.tags = (it.tags || []).join(',');
+
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.loading = 'lazy';
+    img.alt = it.title;
+    img.src = it.thumb;
+    img.dataset.full = it.full;
+
+    const cap = document.createElement('figcaption');
+    cap.className = 'caption';
+    cap.innerHTML = `<div style="font-weight:600">${it.title}</div>
+                     <div style="font-size:12px;color:var(--muted)">${it.desc}</div>`;
+
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    heart.innerHTML = state.favorites.has(it.id) ? '♥' : '♡';
+    if (state.favorites.has(it.id)) heart.classList.add('active');
+    heart.title = '加入最愛';
+    heart.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleFavFor(it.id, heart);
+    });
+
+    card.append(img, cap, heart);
+    card.addEventListener('click', () => openModal(card.dataset.index));
+    gallery.appendChild(card);
+  });
+
+  if (append) state.displayed = state.displayed.concat(list);
+  else state.displayed = list.slice();
+
+  totalCount.textContent = state.filtered.length;
+}
+
+/* ===== 6. Infinite Scroll ===== */
+window.addEventListener('scroll', () => {
+  const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+  if (scrollTop + clientHeight >= scrollHeight - 200) {
+    loadNextPage();
+  }
+});
+
+/* ===== 7. 收藏 ===== */
+function toggleFavFor(id, el) {
+  if (state.favorites.has(id)) {
+    state.favorites.delete(id);
+    el.classList.remove('active');
+    el.innerHTML = '♡';
+  } else {
+    state.favorites.add(id);
+    el.classList.add('active');
+    el.innerHTML = '♥';
+  }
+  localStorage.setItem('wedding_favs', JSON.stringify([...state.favorites]));
+}
+
+/* ===== 8. Modal 操作 ===== */
+function openModal(index) {
+  const it = state.filtered[index];
+  if (!it) return;
+  state.idx = index;
+  modalImg.src = it.full;
+  modalTitle.textContent = it.title;
+  modalDesc.textContent = it.desc;
+  modalIndex.textContent = `${index + 1} / ${state.filtered.length}`;
+  downloadBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.href = it.full;
+    a.download = '';
+    a.click();
+  };
+  toggleFav.textContent = state.favorites.has(it.id)
+    ? '從最愛移除'
+    : '加入最愛';
+  toggleFav.onclick = () => {
+    toggleFavFor(it.id, document.querySelector(`figure[data-id="${it.id}"] .heart`));
+    toggleFav.textContent = state.favorites.has(it.id)
+      ? '從最愛移除'
+      : '加入最愛';
+  };
+  openFull.onclick = () => window.open(it.full, '_blank');
+  modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  modalImg.src = '';
+}
+function next() {
+  state.idx = (state.idx + 1) % state.filtered.length;
+  openModal(state.idx);
+}
+function prev() {
+  state.idx = (state.idx - 1 + state.filtered.length) % state.filtered.length;
+  openModal(state.idx);
+}
+
+/* ===== 9. 搜尋 / 隨機 / 最愛 ===== */
+searchInput.addEventListener('input', e => {
+  const v = e.target.value.trim().toLowerCase();
+  if (!v) {
+    state.filtered = state.items.slice();
+  } else {
+    state.filtered = state.items.filter(it =>
+      (it.title + it.desc + (it.tags || []).join(' ')).toLowerCase().includes(v)
+    );
+  }
+  renderGallery([], false); // 重設
+  loadNextPage();
+});
+
+shuffleBtn.addEventListener('click', () => {
+  state.filtered = shuffleArray(state.filtered);
+  renderGallery([], false);
+  loadNextPage();
+});
+
+favoritesBtn.addEventListener('click', () => {
+  const showingFav = state.filtered.length ===
+    state.items.filter(it => state.favorites.has(it.id)).length;
+  state.filtered = showingFav
+    ? state.items.slice()
+    : state.items.filter(it => state.favorites.has(it.id));
+  renderGallery([], false);
+  loadNextPage();
+});
+
+/* ===== 10. 投影片 ===== */
+let slideInterval = null;
+slideshowBtn.addEventListener('click', () => {
+  if (state.playing) stopSlideshow();
+  else startSlideshow();
+});
+function startSlideshow() {
+  state.playing = true;
+  slideshowBtn.textContent = '停止';
+  state.filtered = state.items.slice();
+  renderGallery([], false);
+  loadNextPage();
+  openModal(0);
+  slideInterval = setInterval(() => next(), 3500);
+}
+function stopSlideshow() {
+  state.playing = false;
+  slideshowBtn.textContent = '投影片播放';
+  clearInterval(slideInterval);
+  slideInterval = null;
+  closeModal();
+}
+
+/* ===== 11. 其他事件 ===== */
+closeBtn.onclick = closeModal;
+prevBtn.onclick = prev;
+nextBtn.onclick = next;
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('open')) {
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'Escape') closeModal();
+    if (e.code === 'Space') {
+      e.preventDefault();
+      state.playing ? stopSlideshow() : startSlideshow();
+    }
+  }
+});
+
+/* ===== 12. Helpers ===== */
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ===== 13. 首次載入 ===== */
+renderGallery([], false);
+loadNextPage(); // 初次載入第一頁
+</script>
+
+</body>
+</html>
