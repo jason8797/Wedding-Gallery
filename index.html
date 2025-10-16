@@ -179,72 +179,74 @@
   </div>
 
   <script>
-/* ===== 1. 自動偵測實際存在的圖片 ===== */
-async function detectPhotos(maxCount = 300) {
-  const results = [];
-  const exts = ['jpg', 'png'];
-
-  async function checkExists(url) {
-    try {
-      const res = await fetch(url, { method: 'HEAD' });
-      return res.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  for (let i = 1; i <= maxCount; i++) {
-    const num = String(i).padStart(3, '0');
-    for (const ext of exts) {
-      const thumb = `photos/thumb/photo${num}.${ext}`;
-      const full = `photos/full/photo${num}.${ext}`;
-      const exists = await checkExists(full);
-      if (exists) {
-        results.push({
-          id: `${ext}-${num}`,
-          title: `photo${num}.${ext}`,
-          desc: `拍攝地點 / 小註記 ${num}`,
-          thumb,
-          full,
-          tags: [(i % 2 === 0) ? '黑白' : '彩色']
-        });
-      }
-    }
-  }
-  return results;
+/* ===== 1. 準備圖片資料 ===== */
+const items = [];
+const TOTAL = 150; // 可依實際數量修改
+for (let i = 1; i <= TOTAL; i++) {
+  const num = String(i).padStart(3, '0');
+  // jpg
+  items.push({
+    id: `jpg-${num}`,
+    title: `Photo ${num}.jpg`,
+    desc: `拍攝地點 / 小註記 ${num}`,
+    thumb: `photos/thumb/photo${num}.jpg`,
+    full: `photos/full/photo${num}.jpg`,
+    tags: [(i % 3 === 0) ? '外景' : '棚拍']
+  });
+  // png
+  items.push({
+    id: `png-${num}`,
+    title: `Photo ${num}.png`,
+    desc: `拍攝地點 / 小註記 ${num}`,
+    thumb: `photos/thumb/photo${num}.png`,
+    full: `photos/full/photo${num}.png`,
+    tags: [(i % 2 === 0) ? '黑白' : '彩色']
+  });
 }
 
-/* ===== 2. 初始化狀態 ===== */
 const PHOTOS_PER_PAGE = 20;
+
+/* ===== 2. DOM ===== */
 const gallery = document.getElementById('gallery');
 const totalCount = document.getElementById('totalCount');
+const searchInput = document.getElementById('searchInput');
+const shuffleBtn = document.getElementById('shuffleBtn');
+const favoritesBtn = document.getElementById('favoritesBtn');
+const slideshowBtn = document.getElementById('slideshowBtn');
+const modal = document.getElementById('modal');
+const modalImg = document.getElementById('modalImg');
+const modalIndex = document.getElementById('modalIndex');
+const modalTitle = document.getElementById('modalTitle');
+const modalDesc = document.getElementById('modalDesc');
+const closeBtn = document.getElementById('closeBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const toggleFav = document.getElementById('toggleFav');
+const openFull = document.getElementById('openFull');
+
+/* ===== 3. 狀態 ===== */
 let state = {
-  items: [],
-  filtered: [],
-  displayed: [],
+  items: items.slice(),
+  filtered: items.slice(),
+  displayed: [], // 實際顯示的子集
   page: 1,
+  idx: 0,
+  playing: false,
   favorites: new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'))
 };
 
-/* ===== 3. 載入並渲染 ===== */
-(async function init() {
-  state.items = await detectPhotos(300);
-  state.filtered = state.items.slice();
-  totalCount.textContent = state.items.length;
-  loadNextPage();
-})();
-
-/* ===== 4. 分頁與載入 ===== */
+/* ===== 4. 分頁載入 ===== */
 function loadNextPage() {
   const start = (state.page - 1) * PHOTOS_PER_PAGE;
   const end = state.page * PHOTOS_PER_PAGE;
   const nextChunk = state.filtered.slice(start, end);
   if (nextChunk.length === 0) return;
-  renderGallery(nextChunk, true);
+  renderGallery(nextChunk, true); // append 模式
   state.page++;
 }
 
-/* ===== 5. 圖片渲染（含縮圖尺寸） ===== */
+/* ===== 5. 畫廊渲染 ===== */
 function renderGallery(list, append = false) {
   if (!append) {
     gallery.innerHTML = '';
@@ -255,14 +257,15 @@ function renderGallery(list, append = false) {
     const card = document.createElement('figure');
     card.className = 'card';
     card.dataset.index = state.displayed.length + i;
+    card.dataset.id = it.id;
+    card.dataset.tags = (it.tags || []).join(',');
 
     const img = document.createElement('img');
     img.className = 'thumb';
     img.loading = 'lazy';
     img.alt = it.title;
     img.src = it.thumb;
-    img.width = 300;       // ✅ 限制寬度為 300px
-    img.style.height = 'auto'; // 等比例縮放
+    img.dataset.full = it.full;
 
     const cap = document.createElement('figcaption');
     cap.className = 'caption';
@@ -272,16 +275,22 @@ function renderGallery(list, append = false) {
     const heart = document.createElement('div');
     heart.className = 'heart';
     heart.innerHTML = state.favorites.has(it.id) ? '♥' : '♡';
+    if (state.favorites.has(it.id)) heart.classList.add('active');
+    heart.title = '加入最愛';
     heart.addEventListener('click', e => {
       e.stopPropagation();
-      toggleFav(it.id, heart);
+      toggleFavFor(it.id, heart);
     });
 
     card.append(img, cap, heart);
     card.addEventListener('click', () => openModal(card.dataset.index));
     gallery.appendChild(card);
   });
-  state.displayed = append ? state.displayed.concat(list) : list.slice();
+
+  if (append) state.displayed = state.displayed.concat(list);
+  else state.displayed = list.slice();
+
+  totalCount.textContent = state.filtered.length;
 }
 
 /* ===== 6. Infinite Scroll ===== */
@@ -292,40 +301,146 @@ window.addEventListener('scroll', () => {
   }
 });
 
-/* ===== 7. 收藏功能 ===== */
-function toggleFav(id, el) {
+/* ===== 7. 收藏 ===== */
+function toggleFavFor(id, el) {
   if (state.favorites.has(id)) {
     state.favorites.delete(id);
+    el.classList.remove('active');
     el.innerHTML = '♡';
   } else {
     state.favorites.add(id);
+    el.classList.add('active');
     el.innerHTML = '♥';
   }
   localStorage.setItem('wedding_favs', JSON.stringify([...state.favorites]));
 }
 
-/* ===== 8. Modal ===== */
+/* ===== 8. Modal 操作 ===== */
 function openModal(index) {
-  const modal = document.getElementById('modal');
-  const modalImg = document.getElementById('modalImg');
-  const modalTitle = document.getElementById('modalTitle');
-  const modalDesc = document.getElementById('modalDesc');
-  const modalIndex = document.getElementById('modalIndex');
   const it = state.filtered[index];
   if (!it) return;
+  state.idx = index;
   modalImg.src = it.full;
   modalTitle.textContent = it.title;
   modalDesc.textContent = it.desc;
   modalIndex.textContent = `${index + 1} / ${state.filtered.length}`;
+  downloadBtn.onclick = () => {
+    const a = document.createElement('a');
+    a.href = it.full;
+    a.download = '';
+    a.click();
+  };
+  toggleFav.textContent = state.favorites.has(it.id)
+    ? '從最愛移除'
+    : '加入最愛';
+  toggleFav.onclick = () => {
+    toggleFavFor(it.id, document.querySelector(`figure[data-id="${it.id}"] .heart`));
+    toggleFav.textContent = state.favorites.has(it.id)
+      ? '從最愛移除'
+      : '加入最愛';
+  };
+  openFull.onclick = () => window.open(it.full, '_blank');
   modal.classList.add('open');
+  modal.setAttribute('aria-hidden', 'false');
+}
+function closeModal() {
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden', 'true');
+  modalImg.src = '';
+}
+function next() {
+  state.idx = (state.idx + 1) % state.filtered.length;
+  openModal(state.idx);
+}
+function prev() {
+  state.idx = (state.idx - 1 + state.filtered.length) % state.filtered.length;
+  openModal(state.idx);
 }
 
-/* ===== 9. 關閉 Modal ===== */
-document.getElementById('closeBtn').onclick = () => {
-  document.getElementById('modal').classList.remove('open');
-};
-</script>
+/* ===== 9. 搜尋 / 隨機 / 最愛 ===== */
+searchInput.addEventListener('input', e => {
+  const v = e.target.value.trim().toLowerCase();
+  if (!v) {
+    state.filtered = state.items.slice();
+  } else {
+    state.filtered = state.items.filter(it =>
+      (it.title + it.desc + (it.tags || []).join(' ')).toLowerCase().includes(v)
+    );
+  }
+  renderGallery([], false); // 重設
+  loadNextPage();
+});
 
+shuffleBtn.addEventListener('click', () => {
+  state.filtered = shuffleArray(state.filtered);
+  renderGallery([], false);
+  loadNextPage();
+});
+
+favoritesBtn.addEventListener('click', () => {
+  const showingFav = state.filtered.length ===
+    state.items.filter(it => state.favorites.has(it.id)).length;
+  state.filtered = showingFav
+    ? state.items.slice()
+    : state.items.filter(it => state.favorites.has(it.id));
+  renderGallery([], false);
+  loadNextPage();
+});
+
+/* ===== 10. 投影片 ===== */
+let slideInterval = null;
+slideshowBtn.addEventListener('click', () => {
+  if (state.playing) stopSlideshow();
+  else startSlideshow();
+});
+function startSlideshow() {
+  state.playing = true;
+  slideshowBtn.textContent = '停止';
+  state.filtered = state.items.slice();
+  renderGallery([], false);
+  loadNextPage();
+  openModal(0);
+  slideInterval = setInterval(() => next(), 3500);
+}
+function stopSlideshow() {
+  state.playing = false;
+  slideshowBtn.textContent = '投影片播放';
+  clearInterval(slideInterval);
+  slideInterval = null;
+  closeModal();
+}
+
+/* ===== 11. 其他事件 ===== */
+closeBtn.onclick = closeModal;
+prevBtn.onclick = prev;
+nextBtn.onclick = next;
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => {
+  if (modal.classList.contains('open')) {
+    if (e.key === 'ArrowRight') next();
+    if (e.key === 'ArrowLeft') prev();
+    if (e.key === 'Escape') closeModal();
+    if (e.code === 'Space') {
+      e.preventDefault();
+      state.playing ? stopSlideshow() : startSlideshow();
+    }
+  }
+});
+
+/* ===== 12. Helpers ===== */
+function shuffleArray(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+/* ===== 13. 首次載入 ===== */
+renderGallery([], false);
+loadNextPage(); // 初次載入第一頁
+</script>
 
 </body>
 </html>
