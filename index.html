@@ -268,12 +268,13 @@ function renderGallery(list, append = false) {
     img.src = it.thumb;
     img.dataset.full = it.full;
 
-    // ✅ 新增縮圖限制寬 300px（等比例縮放）
-    img.width = 300;
-    img.style.height = 'auto';
+    // ✅ 修正版：以 CSS 控制縮圖寬度，不用 width 屬性
+    img.style.width = '300px';      // 固定寬 300px
+    img.style.maxWidth = '100%';    // 若容器太小自動縮放
+    img.style.height = 'auto';      // 等比例縮放
     img.style.objectFit = 'cover';
-    img.decoding = 'async'; // 加速解碼
-    img.fetchPriority = 'low'; // 降低優先載入權重（提高效能）
+    img.decoding = 'async';
+    img.fetchPriority = 'low';
 
     const cap = document.createElement('figcaption');
     cap.className = 'caption';
