@@ -253,6 +253,7 @@ function renderGallery(list, append = false) {
     state.page = 1;
     state.displayed = [];
   }
+
   list.forEach((it, i) => {
     const card = document.createElement('figure');
     card.className = 'card';
@@ -266,6 +267,13 @@ function renderGallery(list, append = false) {
     img.alt = it.title;
     img.src = it.thumb;
     img.dataset.full = it.full;
+
+    // ✅ 新增縮圖限制寬 300px（等比例縮放）
+    img.width = 300;
+    img.style.height = 'auto';
+    img.style.objectFit = 'cover';
+    img.decoding = 'async'; // 加速解碼
+    img.fetchPriority = 'low'; // 降低優先載入權重（提高效能）
 
     const cap = document.createElement('figcaption');
     cap.className = 'caption';
