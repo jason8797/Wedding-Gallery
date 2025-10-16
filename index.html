@@ -275,6 +275,8 @@ function renderGallery(list, append = false) {
     img.style.objectFit = 'cover';
     img.decoding = 'async';
     img.fetchPriority = 'low';
+    img.srcset = `${it.thumb} 1x, ${it.full} 2x`;
+    img.sizes = "(max-width: 600px) 100vw, 300px";
 
     const cap = document.createElement('figcaption');
     cap.className = 'caption';
