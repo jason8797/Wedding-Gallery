@@ -394,6 +394,25 @@ function initGallery() {
     }
   });
 
+  /* 啟動流程 */
+(async function () {
+  const loadingText = document.createElement('div');
+  loadingText.id = 'loadingText';
+  loadingText.textContent = '正在載入婚紗照片...';
+  loadingText.style.cssText = `
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 18px;
+    color: #999;
+    font-family: "Noto Sans TC", sans-serif;
+  `;
+  document.body.appendChild(loadingText);
+
+  await loadAllImages(); // 等待檢查所有圖片
+  document.getElementById('loadingText').remove(); // 移除載入提示
+})();
+
   /* 初始化 */
   //renderGallery([], false);
   //loadNextPage();
