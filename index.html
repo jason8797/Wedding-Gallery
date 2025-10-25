@@ -180,11 +180,12 @@
 
   <script>
 /* ===== 1. 檢查圖片是否存在 ===== */
-async function checkImageExists(url) {
+function checkImageExists(url) {
   return new Promise(resolve => {
     const img = new Image();
     img.onload = () => resolve(true);
     img.onerror = () => resolve(false);
+    // 為避免瀏覽器快取干擾，可以加時間戳（非必要，可移除）
     img.src = url;
   });
 }
@@ -195,6 +196,9 @@ const TOTAL = 150; // 照片編號上限
 const PHOTOS_PER_PAGE = 20;
 
 async function loadAllImages() {
+  // 清空以防重複呼叫
+  items.length = 0;
+
   for (let i = 1; i <= TOTAL; i++) {
     const num = String(i).padStart(3, '0');
 
@@ -226,13 +230,12 @@ async function loadAllImages() {
       });
     }
   }
-
-  // 全部檢查完成後開始初始化畫廊
-  initGallery();
+  // 回傳檢查後的 items 長度（方便外部判斷）
+  return items.length;
 }
 
-/* ===== 3. 初始化畫廊邏輯 ===== */
-function initGallery() {
+/* ===== 3. 画廊邏輯（放在一個 function 裡） ===== */
+function initGalleryAndBind() {
   const gallery = document.getElementById('gallery');
   const totalCount = document.getElementById('totalCount');
   const searchInput = document.getElementById('searchInput');
@@ -290,6 +293,8 @@ function initGallery() {
       img.alt = it.title;
       img.src = it.thumb;
       img.dataset.full = it.full;
+      // 圖片若載入失敗則隱藏整個 card（保險措施）
+      img.onerror = () => { card.remove(); };
 
       const cap = document.createElement('figcaption');
       cap.className = 'caption';
@@ -318,11 +323,17 @@ function initGallery() {
   }
 
   /* Infinite Scroll */
+  let ticking = false;
   window.addEventListener('scroll', () => {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight - 200) {
-      loadNextPage();
-    }
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 200) {
+        loadNextPage();
+      }
+      ticking = false;
+    });
   });
 
   /* 收藏功能 */
@@ -391,36 +402,108 @@ function initGallery() {
       if (e.key === 'ArrowRight') next();
       if (e.key === 'ArrowLeft') prev();
       if (e.key === 'Escape') closeModal();
+      if (e.code === 'Space') {
+        e.preventDefault();
+        state.playing ? stopSlideshow() : startSlideshow();
+      }
     }
   });
 
-  /* 啟動流程 */
-(async function () {
+  /* 搜尋 / 隨機 / 最愛 按鈕綁定 */
+  searchInput.addEventListener('input', e => {
+    const v = e.target.value.trim().toLowerCase();
+    if (!v) {
+      state.filtered = state.items.slice();
+    } else {
+      state.filtered = state.items.filter(it =>
+        (it.title + it.desc + (it.tags || []).join(' ')).toLowerCase().includes(v)
+      );
+    }
+    renderGallery([], false);
+    loadNextPage();
+  });
+
+  shuffleBtn.addEventListener('click', () => {
+    state.filtered = shuffleArray(state.filtered);
+    renderGallery([], false);
+    loadNextPage();
+  });
+
+  favoritesBtn.addEventListener('click', () => {
+    const showingFav = state.filtered.length ===
+      state.items.filter(it => state.favorites.has(it.id)).length;
+    state.filtered = showingFav
+      ? state.items.slice()
+      : state.items.filter(it => state.favorites.has(it.id));
+    renderGallery([], false);
+    loadNextPage();
+  });
+
+  /* 投影片 */
+  let slideInterval = null;
+  slideshowBtn.addEventListener('click', () => {
+    if (state.playing) stopSlideshow();
+    else startSlideshow();
+  });
+  function startSlideshow() {
+    state.playing = true;
+    slideshowBtn.textContent = '停止';
+    state.filtered = state.items.slice();
+    renderGallery([], false);
+    loadNextPage();
+    openModal(0);
+    slideInterval = setInterval(() => next(), 3500);
+  }
+  function stopSlideshow() {
+    state.playing = false;
+    slideshowBtn.textContent = '投影片播放';
+    clearInterval(slideInterval);
+    slideInterval = null;
+    closeModal();
+  }
+
+  // 首次載入第一頁
+  renderGallery([], false);
+  loadNextPage();
+}
+
+/* ===== 4. 啟動流程（單一入口） ===== */
+(async function startup() {
+  // 建立並顯示載入提示（可改樣式）
   const loadingText = document.createElement('div');
   loadingText.id = 'loadingText';
-  loadingText.textContent = '正在載入婚紗照片...';
+  loadingText.textContent = '正在檢查婚紗照片（jpg → png）...';
   loadingText.style.cssText = `
     position: fixed;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    font-size: 18px;
-    color: #999;
+    font-size: 16px;
+    color: #cfcfcf;
+    background: rgba(0,0,0,0.45);
+    padding: 12px 18px;
+    border-radius: 10px;
+    z-index: 1000;
     font-family: "Noto Sans TC", sans-serif;
   `;
   document.body.appendChild(loadingText);
 
-  await loadAllImages(); // 等待檢查所有圖片
-  document.getElementById('loadingText').remove(); // 移除載入提示
+  // 等待檢查所有檔案（只檢查檔案，不會 render）
+  const found = await loadAllImages();
+
+  // 若一張也沒找到，顯示友善提示
+  if (found === 0) {
+    loadingText.textContent = '尚未找到任何照片。請確認 photos/thumb/ 與 photos/full/ 中有圖檔。';
+    return;
+  }
+
+  // 初始化畫廊（這裡會 render 首頁）
+  initGalleryAndBind();
+
+  // 移除 loading
+  document.getElementById('loadingText')?.remove();
 })();
-
-  /* 初始化 */
-  //renderGallery([], false);
-  //loadNextPage();
-}
-
-/* 啟動流程 */
-loadAllImages();
 </script>
+
 
 </body>
 </html>
