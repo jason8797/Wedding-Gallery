@@ -168,6 +168,30 @@
       footer {
         font-size: 12px;
         margin-top: 20px;
+        margin-bottom: 20px;
+      }
+    }
+
+    /* ---- RWD: Modal Buttons Fix (手機) ---- */
+    @media (max-width: 480px) {
+      .modal-right {
+        padding: 14px;
+      }
+
+      .modal-right > div:first-child {
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .modal-right .meta {
+        gap: 8px;
+      }
+
+      /* 讓關閉與下載按鈕變小一點、靠內一些 */
+      #closeBtn,
+      #downloadBtn {
+        padding: 6px 10px;
+        font-size: 14px;
       }
     }
   </style>
