@@ -86,6 +86,11 @@
     @media (max-width:640px){.gallery{column-count:2}}
     @media (max-width:480px){.gallery{column-count:1}}
 
+    .thumb{
+    max-height: 180px;   /* 原本無限制 → 高度會依圖片決定 */
+    object-fit: cover;   /* 保持畫面美觀 */
+    }
+
     .card{
       display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
       box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition);
@@ -474,7 +479,7 @@ function initGalleryAndBind() {
   // 建立並顯示載入提示（可改樣式）
   const loadingText = document.createElement('div');
   loadingText.id = 'loadingText';
-  loadingText.textContent = '正在檢查婚紗照片...';
+  loadingText.textContent = '照片正在讀取中,請稍候...';
   loadingText.style.cssText = `
     position: fixed;
     top: 50%; left: 50%;
