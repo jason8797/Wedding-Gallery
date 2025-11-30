@@ -1,1 +1,430 @@
-<!doctype html> <html lang="zh-Hant"> <head> <meta charset="utf-8" /> <meta name="viewport" content="width=device-width,initial-scale=1" /> <title>我們的婚紗｜相片集</title> <meta name="description" content="精緻浪漫的婚紗相片集 — 高質感靜態網頁畫廊，支援瀏覽、投影片、收藏、搜尋與下載。" /> <link rel="icon" href="data:;base64,iVBORw0KGgo=" /> <style> /* ===== 設定變數 ===== */ :root{ --bg:#0f0f10; --card:#0f1720; --muted:#9aa5b1; --accent:#f6d0d6; /* 溫柔粉 */ --accent-2:#8ecae6; /* 淡藍 */ --glass: rgba(255,255,255,0.06); --radius:14px; --maxwidth:1200px; --gutter:14px; --transition:250ms ease; font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; } /* ===== 全體 ===== */ html,body{height:100%;} body{ margin:0; background: linear-gradient(180deg,#050507 0%, #0b0b0d 40%); color:#f3f6f8; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale; padding:32px 18px; display:flex; justify-content:center; align-items:flex-start; box-sizing:border-box; } /* ===== 置中容器 ===== */ .wrap{ width:100%; max-width:var(--maxwidth); margin:0 auto; } header{ display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px; } .brand{ display:flex;align-items:center;gap:12px; } .logo{ width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2)); box-shadow:0 6px 30px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b0b0d;font-size:18px; transform:rotate(-8deg); } h1{margin:0;font-family:"Playfair Display", "Noto Serif TC", serif;font-size:20px;letter-spacing:0.6px;} .subtitle{color:var(--muted);font-size:13px} /* ===== 控制列 ===== */ .controls{ display:flex;gap:10px;align-items:center; } .btn{ background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:10px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition); } .btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.5)} .search{ display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted); } .search input{background:transparent;border:0;outline:0;color:inherit;width:220px} /* ===== 資訊列 ===== */ .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 20px;color:var(--muted);font-size:14px} /* ===== 瀑布排列（masonry-like） ===== */ .gallery{ column-count:3;column-gap:var(--gutter); } @media (max-width:1000px){.gallery{column-count:2}} @media (max-width:640px){.gallery{column-count:1}} .card{ display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent); box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition); } .card:hover{transform:translateY(-6px)} .thumb{display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b} .caption{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,rgba(0,0,0,0.45),rgba(0,0,0,0.25));backdrop-filter: blur(6px);padding:8px 10px;border-radius:999px;font-size:13px} .meta{display:flex;gap:8px;align-items:center} .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px} .heart.active{color:#ff6b81} /* ===== Lightbox/Modal ===== */ .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px} .modal.open{display:flex} .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px} .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b} .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block} .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px} .modal .controls-row{display:flex;gap:8px} .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer} /* ===== footer ===== */ footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center} /* small helpers */ .muted{color:var(--muted)} .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)} </style> </head> <body> <div class="wrap"> <header> <div class="brand"> <div class="logo">J&amp;P</div> <div> <h1>Jason &amp; Phoebe</h1> <div class="subtitle">2026.01.24 • 我們的婚紗相片</div> </div> </div> <div class="controls"> <div class="search"> <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle></svg> <input id="searchInput" placeholder="搜尋（地點/詞）..." /> </div> <button class="btn" id="shuffleBtn" title="隨機排列">隨機</button> <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button> <button class="btn" id="slideshowBtn" title="投影片模式">投影片播放</button> </div> </header> <div class="info-row"> <div class="tag">共 <span id="totalCount">0</span> 張</div> <div class="muted">|</div> <div class="muted">瀏覽：可鍵盤左右切換、空白暫停、自動播放</div> </div> <main> <section id="gallery" class="gallery" aria-live="polite"></section> </main> <div id="modal" class="modal" aria-hidden="true"> <div class="modal-content" role="dialog" aria-label="圖片預覽"> <div class="modal-left"> <button class="icon-btn" id="prevBtn" title="上一張">◀</button> <img id="modalImg" src="" alt="" /> <button class="icon-btn" id="nextBtn" title="下一張">▶</button> </div> <aside class="modal-right"> <div style="display:flex;justify-content:space-between;align-items:center"> <div class="muted" id="modalIndex">0 / 0</div> <div class="meta"> <button class="icon-btn" id="closeBtn">關閉</button> <button class="icon-btn" id="downloadBtn">下載</button> </div> </div> <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div> <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div> <div style="margin-top:12px"> <button class="btn" id="toggleFav">加入最愛</button> <button class="btn" id="openFull">開啟原始尺寸</button> </div> <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div> </aside> </div> </div> <footer>若要部署：將此檔案與 photo 資料夾一起上傳到 GitHub Pages、Netlify 或任何靜態網站空間。</footer> </div> <script> /* ===== 1. 檢查圖片是否存在 ===== */ async function checkImageExists(url) { return new Promise(resolve => { const img = new Image(); img.onload = () => resolve(true); img.onerror = () => resolve(false); img.src = url; }); } /* ===== 2. 動態建立 items（只加入存在的） ===== */ const items = []; const TOTAL = 150; // 照片編號上限 const PHOTOS_PER_PAGE = 20; async function loadAllImages() { for (let i = 1; i <= TOTAL; i++) { const num = String(i).padStart(3, '0'); // 先檢查 jpg，若不存在再檢查 png const jpgThumb = photos/thumb/photo${num}.jpg; const pngThumb = photos/thumb/photo${num}.png; const jpgFull = photos/full/photo${num}.jpg; const pngFull = photos/full/photo${num}.png; let thumb = null, full = null, ext = null; if (await checkImageExists(jpgThumb)) { thumb = jpgThumb; full = jpgFull; ext = 'jpg'; } else if (await checkImageExists(pngThumb)) { thumb = pngThumb; full = pngFull; ext = 'png'; } if (thumb && full) { items.push({ id: ${ext}-${num}, title: Photo ${num}.${ext}, desc: 拍攝地點 / 小註記 ${num}, thumb, full, tags: [(i % 3 === 0) ? '外景' : '棚拍'] }); } } // 全部檢查完成後開始初始化畫廊 initGallery(); } /* ===== 3. 初始化畫廊邏輯 ===== */ function initGallery() { const gallery = document.getElementById('gallery'); const totalCount = document.getElementById('totalCount'); const searchInput = document.getElementById('searchInput'); const shuffleBtn = document.getElementById('shuffleBtn'); const favoritesBtn = document.getElementById('favoritesBtn'); const slideshowBtn = document.getElementById('slideshowBtn'); const modal = document.getElementById('modal'); const modalImg = document.getElementById('modalImg'); const modalIndex = document.getElementById('modalIndex'); const modalTitle = document.getElementById('modalTitle'); const modalDesc = document.getElementById('modalDesc'); const closeBtn = document.getElementById('closeBtn'); const prevBtn = document.getElementById('prevBtn'); const nextBtn = document.getElementById('nextBtn'); const downloadBtn = document.getElementById('downloadBtn'); const toggleFav = document.getElementById('toggleFav'); const openFull = document.getElementById('openFull'); let state = { items: items.slice(), filtered: items.slice(), displayed: [], page: 1, idx: 0, playing: false, favorites: new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]')) }; function loadNextPage() { const start = (state.page - 1) * PHOTOS_PER_PAGE; const end = state.page * PHOTOS_PER_PAGE; const nextChunk = state.filtered.slice(start, end); if (nextChunk.length === 0) return; renderGallery(nextChunk, true); state.page++; } function renderGallery(list, append = false) { if (!append) { gallery.innerHTML = ''; state.page = 1; state.displayed = []; } list.forEach((it, i) => { const card = document.createElement('figure'); card.className = 'card'; card.dataset.index = state.displayed.length + i; card.dataset.id = it.id; card.dataset.tags = (it.tags || []).join(','); const img = document.createElement('img'); img.className = 'thumb'; img.loading = 'lazy'; img.alt = it.title; img.src = it.thumb; img.dataset.full = it.full; const cap = document.createElement('figcaption'); cap.className = 'caption'; cap.innerHTML = <div style="font-weight:600">${it.title}</div> <div style="font-size:12px;color:var(--muted)">${it.desc}</div>; const heart = document.createElement('div'); heart.className = 'heart'; heart.innerHTML = state.favorites.has(it.id) ? '♥' : '♡'; if (state.favorites.has(it.id)) heart.classList.add('active'); heart.title = '加入最愛'; heart.addEventListener('click', e => { e.stopPropagation(); toggleFavFor(it.id, heart); }); card.append(img, cap, heart); card.addEventListener('click', () => openModal(card.dataset.index)); gallery.appendChild(card); }); if (append) state.displayed = state.displayed.concat(list); else state.displayed = list.slice(); totalCount.textContent = state.filtered.length; } /* Infinite Scroll */ window.addEventListener('scroll', () => { const { scrollTop, scrollHeight, clientHeight } = document.documentElement; if (scrollTop + clientHeight >= scrollHeight - 200) { loadNextPage(); } }); /* 收藏功能 */ function toggleFavFor(id, el) { if (state.favorites.has(id)) { state.favorites.delete(id); el.classList.remove('active'); el.innerHTML = '♡'; } else { state.favorites.add(id); el.classList.add('active'); el.innerHTML = '♥'; } localStorage.setItem('wedding_favs', JSON.stringify([...state.favorites])); } /* Modal 操作 */ function openModal(index) { const it = state.filtered[index]; if (!it) return; state.idx = index; modalImg.src = it.full; modalTitle.textContent = it.title; modalDesc.textContent = it.desc; modalIndex.textContent = ${index + 1} / ${state.filtered.length}; downloadBtn.onclick = () => { const a = document.createElement('a'); a.href = it.full; a.download = ''; a.click(); }; toggleFav.textContent = state.favorites.has(it.id) ? '從最愛移除' : '加入最愛'; toggleFav.onclick = () => { toggleFavFor(it.id, document.querySelector(figure[data-id="${it.id}"] .heart)); toggleFav.textContent = state.favorites.has(it.id) ? '從最愛移除' : '加入最愛'; }; openFull.onclick = () => window.open(it.full, '_blank'); modal.classList.add('open'); modal.setAttribute('aria-hidden', 'false'); } function closeModal() { modal.classList.remove('open'); modal.setAttribute('aria-hidden', 'true'); modalImg.src = ''; } function next() { state.idx = (state.idx + 1) % state.filtered.length; openModal(state.idx); } function prev() { state.idx = (state.idx - 1 + state.filtered.length) % state.filtered.length; openModal(state.idx); } closeBtn.onclick = closeModal; prevBtn.onclick = prev; nextBtn.onclick = next; modal.addEventListener('click', e => { if (e.target === modal) closeModal(); }); document.addEventListener('keydown', e => { if (modal.classList.contains('open')) { if (e.key === 'ArrowRight') next(); if (e.key === 'ArrowLeft') prev(); if (e.key === 'Escape') closeModal(); } }); /* 啟動流程 */ (async function () { const loadingText = document.createElement('div'); loadingText.id = 'loadingText'; loadingText.textContent = '正在載入婚紗照片...'; loadingText.style.cssText = position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 18px; color: #999; font-family: "Noto Sans TC", sans-serif; ; document.body.appendChild(loadingText); await loadAllImages(); // 等待檢查所有圖片 document.getElementById('loadingText').remove(); // 移除載入提示 })(); /* 初始化 */ //renderGallery([], false); //loadNextPage(); } /* 啟動流程 */ loadAllImages(); </script> </body> </html>
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>我們的婚紗｜相片集</title>
+  <meta name="description" content="精緻浪漫的婚紗相片集 — 高質感靜態網頁畫廊，支援瀏覽、投影片、收藏、搜尋與下載。" />
+  <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
+  <style>
+    /* ===== 設定變數 ===== */
+    :root{
+      --bg:#0f0f10;
+      --card:#0f1720;
+      --muted:#9aa5b1;
+      --accent:#f6d0d6;
+      --accent-2:#8ecae6;
+      --glass: rgba(255,255,255,0.06);
+      --radius:14px;
+      --maxwidth:1200px;
+      --gutter:14px;
+      --transition:250ms ease;
+      font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    }
+    html,body{height:100%;}
+    body{
+      margin:0;background: linear-gradient(180deg,#050507 0%, #0b0b0d 40%);color:#f3f6f8;
+      -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;padding:32px 18px;
+      display:flex;justify-content:center;align-items:flex-start;box-sizing:border-box;
+    }
+    .wrap{width:100%;max-width:var(--maxwidth);margin:0 auto;}
+    header{display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px;}
+    .brand{display:flex;align-items:center;gap:12px;}
+    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));box-shadow:0 6px 30px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b0b0d;font-size:18px;transform:rotate(-8deg);}
+    h1{margin:0;font-family:"Playfair Display", "Noto Serif TC", serif;font-size:20px;letter-spacing:0.6px;}
+    .subtitle{color:var(--muted);font-size:13px}
+    .controls{display:flex;gap:10px;align-items:center;}
+    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:10px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition);}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+    .search{display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted);}
+    .search input{background:transparent;border:0;outline:0;color:inherit;width:220px}
+    .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 20px;color:var(--muted);font-size:14px}
+    .gallery{column-count:3;column-gap:var(--gutter);min-height:120px}
+    @media (max-width:1000px){.gallery{column-count:2}}
+    @media (max-width:640px){.gallery{column-count:1}}
+    .card{display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition);}
+    .card:hover{transform:translateY(-6px)}
+    .thumb{display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b}
+    .caption{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,rgba(0,0,0,0.45),rgba(0,0,0,0.25));backdrop-filter: blur(6px);padding:8px 10px;border-radius:999px;font-size:13px}
+    .meta{display:flex;gap:8px;align-items:center}
+    .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px}
+    .heart.active{color:#ff6b81}
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px}
+    .modal.open{display:flex}
+    .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px}
+    .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b}
+    .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block}
+    .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px}
+    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+    footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+    .muted{color:var(--muted)}
+    .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
+    /* loading small spinner */
+    .loading-bubble {position:fixed;right:20px;bottom:20px;background:rgba(255,255,255,0.06);padding:8px 12px;border-radius:999px;color:var(--muted);backdrop-filter:blur(6px);font-size:13px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">J&amp;P</div>
+        <div>
+          <h1>Jason &amp; Phoebe</h1>
+          <div class="subtitle">2026.01.24 • 我們的婚紗相片</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <div class="search">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
+          <input id="searchInput" placeholder="搜尋（地點/詞）..." />
+        </div>
+        <button class="btn" id="shuffleBtn" title="隨機排列">隨機</button>
+        <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>
+        <button class="btn" id="slideshowBtn" title="投影片模式">投影片播放</button>
+      </div>
+    </header>
+
+    <div class="info-row">
+      <div class="tag">共 <span id="totalCount">0</span> 張</div>
+      <div class="muted">|</div>
+      <div class="muted">瀏覽：可鍵盤左右切換、空白暫停、自動播放</div>
+    </div>
+
+    <main>
+      <section id="gallery" class="gallery" aria-live="polite"></section>
+    </main>
+
+    <div id="modal" class="modal" aria-hidden="true">
+      <div class="modal-content" role="dialog" aria-label="圖片預覽">
+        <div class="modal-left">
+          <button class="icon-btn" id="prevBtn" title="上一張">◀</button>
+          <img id="modalImg" src="" alt="" />
+          <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
+        </div>
+        <aside class="modal-right">
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <div class="muted" id="modalIndex">0 / 0</div>
+            <div class="meta">
+              <button class="icon-btn" id="closeBtn">關閉</button>
+              <button class="icon-btn" id="downloadBtn">下載</button>
+            </div>
+          </div>
+          <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div>
+          <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
+          <div style="margin-top:12px">
+            <button class="btn" id="toggleFav">加入最愛</button>
+            <button class="btn" id="openFull">開啟原始尺寸</button>
+          </div>
+          <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div>
+        </aside>
+      </div>
+    </div>
+
+    <footer>若要部署：將此檔案與 photo 資料夾一起上傳到 GitHub Pages、Netlify 或任何靜態網站空間。</footer>
+  </div>
+
+  <div id="loadingBubble" class="loading-bubble" style="display:none">正在檢查並載入照片…</div>
+
+  <script>
+/* -------------------------
+   Config
+-------------------------*/
+const TOTAL = 150; // 最大編號（例如 photo1..photo150）
+const PHOTOS_PER_PAGE = 20;
+
+/* 全域資料 */
+const items = []; // 已找到的 item（順序為編號順）
+let discoveryDone = false;
+
+/* ===== 1. 檢查圖片是否存在 ===== */
+function checkImageExists(url) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => resolve(true);
+    img.onerror = () => resolve(false);
+    img.decoding = 'async';
+    img.src = url;
+  });
+}
+
+/* ===== 2. 判斷檔名變體（不補零 / 補零3位）並依序檢查 jpg->png =====
+   回傳第一個找到的 {thumb, full, ext} 或 null
+*/
+async function findAvailableVariant(index) {
+  const noPad = String(index);           // photo1
+  const pad3 = String(index).padStart(3, '0'); // photo001
+
+  const variants = [
+    { t: `photo/thumb/photo${noPad}.jpg`, f: `photo/full/photo${noPad}.jpg`, ext: 'jpg' },
+    { t: `photo/thumb/photo${noPad}.png`, f: `photo/full/photo${noPad}.png`, ext: 'png' },
+    { t: `photo/thumb/photo${pad3}.jpg`, f: `photo/full/photo${pad3}.jpg`, ext: 'jpg' },
+    { t: `photo/thumb/photo${pad3}.png`, f: `photo/full/photo${pad3}.png`, ext: 'png' }
+  ];
+
+  for (const v of variants) {
+    if (await checkImageExists(v.t)) {
+      // optional: we could also ensure full exists, but usually full same name exists
+      return { thumb: v.t, full: v.f, ext: v.ext };
+    }
+  }
+  return null;
+}
+
+/* ===== 3. UI helpers: append one card (立即顯示) ===== */
+function appendOneCard(item, visibleIndex = null) {
+  const gallery = document.getElementById('gallery');
+
+  const card = document.createElement('figure');
+  card.className = 'card';
+  // Use dataset.index for modal navigation with the index in items array
+  card.dataset.index = visibleIndex !== null ? visibleIndex : items.indexOf(item);
+  card.dataset.id = item.id;
+
+  const img = document.createElement('img');
+  img.className = 'thumb';
+  img.loading = 'lazy';
+  img.alt = item.title;
+  img.src = item.thumb;
+  img.dataset.full = item.full;
+  img.onerror = () => { card.remove(); };
+
+  const cap = document.createElement('figcaption');
+  cap.className = 'caption';
+  cap.innerHTML = `<div style="font-weight:600">${item.title}</div><div style="font-size:12px;color:var(--muted)">${item.desc}</div>`;
+
+  const heart = document.createElement('div');
+  heart.className = 'heart';
+  heart.innerHTML = '♡';
+  heart.title = '加入最愛';
+  heart.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFavFor(item.id, heart);
+  });
+
+  card.append(img, cap, heart);
+  card.addEventListener('click', () => openModal(card.dataset.index));
+  gallery.appendChild(card);
+}
+
+/* ===== 4. Discovery loop（邊檢查邊顯示） ===== */
+async function loadImagesIncrementally() {
+  const loadingBubble = document.getElementById('loadingBubble');
+  loadingBubble.style.display = 'block';
+
+  const totalCountEl = document.getElementById('totalCount');
+
+  for (let i = 1; i <= TOTAL; i++) {
+    const found = await findAvailableVariant(i);
+    if (!found) continue;
+
+    const numNoPad = String(i);
+    const numPad = String(i).padStart(3, '0');
+    const id = `${found.ext}-${(found.thumb.includes(numPad) ? numPad : numNoPad)}`;
+
+    const item = {
+      id,
+      title: `Photo ${(found.thumb.includes(numPad) ? numPad : numNoPad)}.${found.ext}`,
+      desc: `拍攝地點 / 小註記 ${i}`,
+      thumb: found.thumb,
+      full: found.full,
+      tags: [(i % 3 === 0) ? '外景' : '棚拍']
+    };
+
+    // push to data list
+    items.push(item);
+
+    // update count
+    totalCountEl.textContent = items.length;
+
+    // If we haven't yet filled the first page, append immediately so users see content asap
+    const displayedCount = document.querySelectorAll('#gallery .card').length;
+    if (displayedCount < PHOTOS_PER_PAGE) {
+      appendOneCard(item, items.length - 1);
+    }
+    // if we've already filled a page, don't append here — the infinite-scroll loader will render next pages
+    // but we still keep the item in items[]
+
+    // small micro-yield so UI can update (helps with some browsers)
+    await new Promise(r => setTimeout(r, 0));
+  }
+
+  discoveryDone = true;
+  // hide the loading bubble after a little delay so user sees progress
+  setTimeout(() => { document.getElementById('loadingBubble').style.display = 'none'; }, 400);
+}
+
+/* ===== 5. Paging / render next page ===== */
+function renderNextPage() {
+  const gallery = document.getElementById('gallery');
+  const currentCards = gallery.querySelectorAll('.card').length;
+  const start = currentCards;
+  const end = Math.min(items.length, start + PHOTOS_PER_PAGE);
+  for (let i = start; i < end; i++) {
+    appendOneCard(items[i], i);
+  }
+}
+
+/* ===== 6. Favorites (localStorage) ===== */
+function toggleFavFor(id, el) {
+  const raw = localStorage.getItem('wedding_favs') || '[]';
+  const set = new Set(JSON.parse(raw));
+  if (set.has(id)) {
+    set.delete(id);
+    el.classList.remove('active');
+    el.innerHTML = '♡';
+  } else {
+    set.add(id);
+    el.classList.add('active');
+    el.innerHTML = '♥';
+  }
+  localStorage.setItem('wedding_favs', JSON.stringify(Array.from(set)));
+}
+
+/* ===== 7. Modal / navigation (uses items array indices) ===== */
+function openModal(idxStr) {
+  const idx = Number(idxStr);
+  if (Number.isNaN(idx) || !items[idx]) return;
+  const it = items[idx];
+  const modal = document.getElementById('modal');
+  const modalImg = document.getElementById('modalImg');
+  const modalIndex = document.getElementById('modalIndex');
+  const modalTitle = document.getElementById('modalTitle');
+  const modalDesc = document.getElementById('modalDesc');
+  const downloadBtn = document.getElementById('downloadBtn');
+  const toggleFav = document.getElementById('toggleFav');
+  const openFull = document.getElementById('openFull');
+
+  modalImg.src = it.full;
+  modalTitle.textContent = it.title;
+  modalDesc.textContent = it.desc;
+  modalIndex.textContent = `${idx + 1} / ${items.length}`;
+  downloadBtn.onclick = () => { const a = document.createElement('a'); a.href = it.full; a.download = ''; a.click(); };
+  toggleFav.onclick = () => {
+    toggleFavFor(it.id, document.querySelector(`figure[data-id="${it.id}"] .heart`));
+    toggleFav.textContent = (JSON.parse(localStorage.getItem('wedding_favs')||'[]').includes(it.id)) ? '從最愛移除' : '加入最愛';
+  };
+  openFull.onclick = () => window.open(it.full, '_blank');
+
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('modal').setAttribute('aria-hidden','false');
+}
+
+function closeModal() {
+  const modal = document.getElementById('modal');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.getElementById('modalImg').src = '';
+}
+
+/* Simple next/prev in modal */
+function modalNext() {
+  const idxText = document.getElementById('modalIndex').textContent.split(' / ')[0];
+  let idx = Number(idxText) - 1;
+  idx = (idx + 1) % items.length;
+  openModal(String(idx));
+}
+function modalPrev() {
+  const idxText = document.getElementById('modalIndex').textContent.split(' / ')[0];
+  let idx = Number(idxText) - 1;
+  idx = (idx - 1 + items.length) % items.length;
+  openModal(String(idx));
+}
+
+/* ===== 8. Infinite scroll binding ===== */
+let scrollTick = false;
+window.addEventListener('scroll', () => {
+  if (scrollTick) return;
+  scrollTick = true;
+  requestAnimationFrame(() => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 200) {
+      // if there are undisplayed discovered items, render next page
+      const displayed = document.querySelectorAll('#gallery .card').length;
+      if (displayed < items.length) {
+        renderNextPage();
+      } else {
+        // if discovery not done, show loading bubble and wait for more items
+        if (!discoveryDone) {
+          document.getElementById('loadingBubble').style.display = 'block';
+        }
+      }
+    }
+    scrollTick = false;
+  });
+});
+
+/* ===== 9. Search / shuffle / favorites UI binding (basic) ===== */
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('searchInput');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const favoritesBtn = document.getElementById('favoritesBtn');
+  const slideshowBtn = document.getElementById('slideshowBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const modal = document.getElementById('modal');
+
+  // search: simple client-side filter (operates on already-discovered items)
+  searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+    if (!q) {
+      // render first page of discovered items
+      const count = Math.min(items.length, PHOTOS_PER_PAGE);
+      for (let i = 0; i < count; i++) appendOneCard(items[i], i);
+    } else {
+      const matched = items.filter(it => (it.title + it.desc + (it.tags||[]).join(' ')).toLowerCase().includes(q));
+      matched.forEach((it, idx) => appendOneCard(it, items.indexOf(it)));
+    }
+  });
+
+  shuffleBtn.addEventListener('click', () => {
+    // simple shuffle items array (affects ordering)
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    // re-render first page
+    const gallery = document.getElementById('gallery'); gallery.innerHTML = '';
+    const count = Math.min(items.length, PHOTOS_PER_PAGE);
+    for (let i = 0; i < count; i++) appendOneCard(items[i], i);
+  });
+
+  favoritesBtn.addEventListener('click', () => {
+    const raw = localStorage.getItem('wedding_favs') || '[]';
+    const favs = new Set(JSON.parse(raw));
+    const matched = items.filter(it => favs.has(it.id));
+    const gallery = document.getElementById('gallery'); gallery.innerHTML = '';
+    matched.forEach(it => appendOneCard(it, items.indexOf(it)));
+  });
+
+  // modal controls
+  closeBtn.onclick = closeModal;
+  prevBtn.onclick = modalPrev;
+  nextBtn.onclick = modalNext;
+  modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+  // keyboard support
+  document.addEventListener('keydown', (e) => {
+    if (modal.classList.contains('open')) {
+      if (e.key === 'ArrowRight') modalNext();
+      if (e.key === 'ArrowLeft') modalPrev();
+      if (e.key === 'Escape') closeModal();
+    }
+  });
+
+  // Start discovery after DOM loaded
+  (async () => {
+    await loadImagesIncrementally();
+    // after discovery started, ensure at least first page rendered
+    const displayed = document.querySelectorAll('#gallery .card').length;
+    if (displayed < PHOTOS_PER_PAGE) {
+      renderNextPage();
+    }
+  })();
+});
+  </script>
+</body>
+</html>
