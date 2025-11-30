@@ -205,7 +205,7 @@
           <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
           <div style="margin-top:12px">
             <button class="btn" id="toggleFav">加入最愛</button>
-            <button class="btn" id="openFull">開啟原始尺寸</button>
+            
           </div>
           <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div>
         </aside>
@@ -281,24 +281,24 @@
     const card = document.createElement('figure');
     card.className = 'card';
     card.dataset.id = item.id;
-    card.dataset.full = item.full;
-    card.dataset.tags = (item.tags || []).join(',');
+    card.dataset.full = item.full; // 已設定 full 路徑
+    card.dataset.title = item.title;
+    card.dataset.desc = item.desc;
 
     const img = document.createElement('img');
     img.className = 'thumb';
     img.alt = item.title;
-    // lazy load by IntersectionObserver
     img.dataset.src = item.thumb;
     img.loading = 'lazy';
+    img.onload = () => img.classList.add('loaded');
+    img.onerror = () => card.remove();
 
-    // once thumb loads, add fade-in class
-    img.onload = () => { img.classList.add('loaded'); };
-    img.onerror = () => { card.remove(); };
 
     const cap = document.createElement('figcaption');
     cap.className = 'caption';
     cap.innerHTML = `<div class="title">${escapeHtml(item.title)}</div>
-                     <div class="sub">${escapeHtml(item.desc)}</div>`;
+    <div class="sub">${escapeHtml(item.desc)}</div>`;
+
 
     const heart = document.createElement('div');
     heart.className = 'heart';
@@ -307,25 +307,27 @@
     if (favs.has(item.id)) heart.classList.add('active');
     heart.title = '加入最愛';
     heart.addEventListener('click', e => {
-      e.stopPropagation();
-      toggleFavFor(item.id, heart);
+    e.stopPropagation();
+    toggleFavFor(item.id, heart);
     });
 
+
     card.append(img, cap, heart);
-    card.addEventListener('click', () => openModalById(item.id));
+
+
+    // **關鍵：點擊時直接讀取 card.dataset.full**
+    card.addEventListener('click', () => openModalDirect(card));
+
+
     galleryEl.appendChild(card);
 
-    // update counts
+
     totalCountEl.textContent = allItems.length;
 
-    // observe for lazy load
-    if ('IntersectionObserver' in window) {
-      lazyObserver.observe(img);
-    } else {
-      // fallback immediate load
-      img.src = img.dataset.src;
+
+    if ('IntersectionObserver' in window) lazyObserver.observe(img);
+    else img.src = img.dataset.src;
     }
-  }
 
   /* escape helper for safety */
   function escapeHtml(s){
@@ -347,6 +349,43 @@
     }
     localStorage.setItem('wedding_favs', JSON.stringify([...set]));
   }
+
+  // 新增：直接以卡片自身資料開啟 modal（不依賴 state.filtered）
+  function openModalDirect(card) {
+    const full = card.dataset.full;
+    const title = card.dataset.title;
+    const desc = card.dataset.desc;
+
+
+    modalImg.src = full;
+    modalTitle.textContent = title;
+    modalDesc.textContent = desc;
+    modalIndex.textContent = '';
+
+
+    downloadBtn.onclick = () => {
+      const a = document.createElement('a');
+      a.href = full;
+      a.download = '';
+      a.click();
+    };
+
+
+    // 最愛按鈕同步
+    toggleFav.textContent = (new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]')))
+      .has(card.dataset.id) ? '從最愛移除' : '加入最愛';
+
+
+    toggleFav.onclick = () => {
+      const h = card.querySelector('.heart');
+      toggleFavFor(card.dataset.id, h);
+      toggleFav.textContent = h.classList.contains('active') ? '從最愛移除' : '加入最愛';
+    };
+
+
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    }
 
   /* modal helpers (open by index or id) */
   let state = { items: allItems.slice(), filtered: allItems.slice(), idx: 0, playing: false };
