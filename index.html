@@ -164,7 +164,13 @@
     }
 
     /* ---- Footer ---- */
-    
+    @media (max-width: 480px) {
+      footer {
+        font-size: 12px;
+        margin-top: 20px;
+        margin-bottom: 20px;
+      }
+    }
 
     /* ---- RWD: Modal Buttons Fix (手機) ---- */
     @media (max-width: 480px) {
@@ -215,7 +221,7 @@
     <div class="info-row">
       <div class="tag">共 <span id="totalCount">0</span> 張</div>
       <div class="muted">|</div>
-      <div class="muted">瀏覽：鍵盤左右切換</div>
+      <div class="muted">點擊圖片可看清晰圖</div>
     </div>
 
     <main>
@@ -243,7 +249,7 @@
             <button class="btn" id="toggleFav">加入最愛</button>
             <button class="btn" id="openFull">檢視原始尺寸</button>
           </div>
-          <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div>
+          <div style="margin-top:6px" class="muted">瀏覽：鍵盤左右切換</div>
         </aside>
       </div>
     </div>
