@@ -79,10 +79,12 @@
 
     /* ===== 瀑布排列（masonry-like） ===== */
     .gallery{
-      column-count:3;column-gap:var(--gutter);
+      column-count:4;
+      column-gap:var(--gutter);
     }
-    @media (max-width:1000px){.gallery{column-count:2}}
-    @media (max-width:640px){.gallery{column-count:1}}
+    @media (max-width:1000px){.gallery{column-count:3}}
+    @media (max-width:640px){.gallery{column-count:2}}
+    @media (max-width:480px){.gallery{column-count:1}}
 
     .card{
       display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
