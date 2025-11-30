@@ -86,6 +86,90 @@
     .footer {
       padding: 10px; /* 上右下左皆為 20px */
     }
+    /* ---- RWD: Header ---- */
+    @media (max-width: 768px) {
+      body {
+        padding: 20px 12px;
+      }
+
+      header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+
+      .controls {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+
+      .search input {
+        width: 140px;
+      }
+
+      h1 {
+        font-size: clamp(16px, 4vw, 22px);
+      }
+    }
+
+    /* ---- RWD: Gallery spacing ---- */
+    @media (max-width: 600px) {
+      :root {
+        --gutter: 10px;
+      }
+
+      .card {
+        border-radius: 10px;
+      }
+
+      .caption {
+        font-size: 12px;
+        padding: 6px 8px;
+      }
+    }
+
+    /* ---- RWD: Modal Layout ---- */
+    @media (max-width: 820px) {
+      .modal-content {
+        flex-direction: column;
+        max-height: 100vh;
+      }
+
+      .modal-right {
+        width: 100%;
+        padding: 16px;
+        order: 2;
+      }
+
+      .modal-left {
+        order: 1;
+      }
+
+      .modal-left img {
+        max-height: 60vh;
+      }
+    }
+
+    /* ---- RWD: Buttons ---- */
+    @media (max-width: 500px) {
+      .btn {
+        padding: 6px 10px;
+        font-size: 14px;
+      }
+
+      .search {
+        padding: 6px 10px;
+      }
+    }
+
+    /* ---- Footer ---- */
+    @media (max-width: 480px) {
+      footer {
+        font-size: 12px;
+        margin-top: 20px;
+      }
+    }
   </style>
 </head>
 <body>
@@ -139,7 +223,7 @@
           <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
           <div style="margin-top:12px">
             <button class="btn" id="toggleFav">加入最愛</button>
-            <button class="btn" id="openFull">開啟原始尺寸</button>
+            <button class="btn" id="openFull">檢視原始尺寸</button>
           </div>
           <div style="margin-top:6px" class="muted">鍵盤：←→ 切換, 空白 暫停/播放, Esc 關閉</div>
         </aside>
@@ -149,7 +233,7 @@
     <footer>Jason驊宸 ❤️ 綵妤Phoebe</footer>
   </div>
 
-  <div id="loadingBubble" class="loading-bubble" style="display:none">正在檢查並載入照片…</div>
+  <div id="loadingBubble" class="loading-bubble" style="display:none">照片載入中…</div>
 
   <script>
     /* CONFIG */
