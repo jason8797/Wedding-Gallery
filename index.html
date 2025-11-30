@@ -203,10 +203,10 @@ async function loadAllImages() {
     const num = String(i).padStart(3, '0');
 
     // 先檢查 jpg，若不存在再檢查 png
-    const jpgThumb = `photos/thumb/photo${num}.jpg`;
-    const pngThumb = `photos/thumb/photo${num}.png`;
-    const jpgFull = `photos/full/photo${num}.jpg`;
-    const pngFull = `photos/full/photo${num}.png`;
+    const jpgThumb = `photo/thumb/photo${num}.jpg`;
+    const pngThumb = `photo/thumb/photo${num}.png`;
+    const jpgFull = `photo/full/photo${num}.jpg`;
+    const pngFull = `photo/full/photo${num}.png`;
 
     let thumb = null, full = null, ext = null;
     if (await checkImageExists(jpgThumb)) {
