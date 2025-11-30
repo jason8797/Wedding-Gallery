@@ -6,122 +6,152 @@
   <title>我們的婚紗｜相片集</title>
   <meta name="description" content="精緻浪漫的婚紗相片集 — 高質感靜態網頁畫廊，支援瀏覽、投影片、收藏、搜尋與下載。" />
   <link rel="icon" href="data:;base64,iVBORw0KGgo=" />
-
   <style>
-    /* ===== 設定變數 ===== */
+    /* ===== 根變數 ===== */
     :root{
-      --bg:#0f0f10;
-      --card:#0f1720;
+      --bg-1: #071019;
+      --bg-2: #0b1014;
       --muted:#9aa5b1;
       --accent:#f6d0d6; /* 溫柔粉 */
       --accent-2:#8ecae6; /* 淡藍 */
-      --glass: rgba(255,255,255,0.06);
+      --glass: rgba(255,255,255,0.04);
       --radius:14px;
       --maxwidth:1200px;
       --gutter:14px;
-      --transition:250ms ease;
+      --transition:260ms cubic-bezier(.2,.9,.2,1);
       font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
     }
 
-    /* ===== 全體 ===== */
+    /* ===== 全局 ===== */
+    *{box-sizing:border-box}
     html,body{height:100%;}
     body{
       margin:0;
-      background: linear-gradient(180deg,#050507 0%, #0b0b0d 40%);
-      color:#f3f6f8;
+      background: linear-gradient(180deg,var(--bg-1) 0%, var(--bg-2) 60%);
+      color:#eef4f6;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
-      padding:32px 18px;
+      padding:28px 18px;
       display:flex;
       justify-content:center;
       align-items:flex-start;
-      box-sizing:border-box;
     }
 
-    /* ===== 置中容器 ===== */
+    /* ===== 容器 ===== */
     .wrap{
       width:100%;
       max-width:var(--maxwidth);
       margin:0 auto;
     }
-
-    header{
-      display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px;
-    }
-
-    .brand{
-      display:flex;align-items:center;gap:12px;
-    }
+    header{display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;align-items:center;gap:12px}
     .logo{
-      width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      box-shadow:0 6px 30px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b0b0d;font-size:18px;
-      transform:rotate(-8deg);
+      width:64px;height:64px;border-radius:14px;
+      background: linear-gradient(135deg,var(--accent),var(--accent-2));
+      box-shadow: 0 10px 30px rgba(2,6,10,0.6);
+      display:flex;align-items:center;justify-content:center;font-weight:800;color:#0b0b0b;font-size:18px;transform:rotate(-8deg);
     }
-    h1{margin:0;font-family:"Playfair Display", "Noto Serif TC", serif;font-size:20px;letter-spacing:0.6px;}
+    h1{margin:0;font-family:"Playfair Display","Noto Serif TC",serif;font-size:20px}
     .subtitle{color:var(--muted);font-size:13px}
 
-    /* ===== 控制列 ===== */
-    .controls{
-      display:flex;gap:10px;align-items:center;
-    }
+    /* controls */
+    .controls{display:flex;gap:10px;align-items:center}
     .btn{
-      background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:10px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition);
+      background:var(--glass);border:1px solid rgba(255,255,255,0.03);
+      padding:9px 12px;border-radius:12px;color:var(--accent);cursor:pointer;
+      backdrop-filter: blur(6px);transition:transform var(--transition), box-shadow var(--transition);
     }
-    .btn:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(0,0,0,0.5)}
+    .btn:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,0.5)}
+    .search{display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted)}
+    .search input{background:transparent;border:0;outline:0;color:inherit;width:220px;font-size:14px}
 
-    .search{
-      display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted);
-    }
-    .search input{background:transparent;border:0;outline:0;color:inherit;width:220px}
-
-    /* ===== 資訊列 ===== */
+    /* info */
     .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 20px;color:var(--muted);font-size:14px}
 
-    /* ===== 瀑布排列（masonry-like） ===== */
+    /* gallery masonry-like */
     .gallery{
       column-count:4;
       column-gap:var(--gutter);
+      width:100%;
     }
-    @media (max-width:1000px){.gallery{column-count:3}}
-    @media (max-width:640px){.gallery{column-count:2}}
-    @media (max-width:480px){.gallery{column-count:1}}
+    @media (max-width:1100px){.gallery{column-count:3}}
+    @media (max-width:700px){.gallery{column-count:2}}
+    @media (max-width:420px){.gallery{column-count:1}}
 
-    .thumb{
-    max-height: 180px;   /* 原本無限制 → 高度會依圖片決定 */
-    object-fit: cover;   /* 保持畫面美觀 */
-    }
-
+    /* card */
     .card{
-      display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-      box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition);
+      display:inline-block;
+      width:100%;
+      margin:0 0 var(--gutter);
+      position:relative;
+      border-radius:12px;
+      overflow:hidden;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), transparent);
+      box-shadow: 0 6px 18px rgba(2,6,10,0.6);
+      transform-origin:center;
+      transition: transform 360ms cubic-bezier(.2,.9,.2,1), box-shadow 260ms;
     }
-    .card:hover{transform:translateY(-6px)}
+    .card:hover{transform:translateY(-8px) scale(1.01); box-shadow:0 18px 40px rgba(2,6,10,0.65)}
 
-    .thumb{display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b}
-    .caption{position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,rgba(0,0,0,0.45),rgba(0,0,0,0.25));backdrop-filter: blur(6px);padding:8px 10px;border-radius:999px;font-size:13px}
+    /* thumbnail style */
+    .thumb{
+      display:block;
+      width:100%;
+      height:auto;
+      vertical-align:middle;
+      background:#0b0b0b;
+      object-fit:cover;
+      transform-origin:center;
+      transition: opacity 420ms var(--transition), transform 420ms var(--transition);
+      opacity:0;
+      filter: contrast(1.02) saturate(1.02);
+    }
+    .thumb.loaded{opacity:1}
+    .card:hover .thumb{ transform: scale(1.03) translateY(-4px) }
 
-    .meta{display:flex;gap:8px;align-items:center}
-    .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px}
+    /* dynamic caption bubble */
+    .caption{
+      position:absolute;left:12px;bottom:12px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.5), rgba(0,0,0,0.25));
+      backdrop-filter: blur(6px);
+      padding:8px 10px;border-radius:999px;font-size:13px;
+      display:flex;flex-direction:column;gap:3px;
+    }
+    .caption .title{font-weight:700;font-size:13px}
+    .caption .sub{font-size:12px;color:var(--muted)}
+
+    /* heart */
+    .heart{position:absolute;right:12px;bottom:12px;cursor:pointer;font-size:16px;padding:6px;border-radius:10px;background:rgba(0,0,0,0.28);backdrop-filter:blur(4px)}
     .heart.active{color:#ff6b81}
 
-    /* ===== Lightbox/Modal ===== */
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px}
+    /* modal */
+    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.7),rgba(8,8,10,0.9));z-index:60;padding:20px}
     .modal.open{display:flex}
     .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px}
-    .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b}
+    .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b;position:relative}
     .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block}
     .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px}
+    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer;color:var(--muted)}
 
-    .modal .controls-row{display:flex;gap:8px}
-    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
-
-    /* ===== footer ===== */
     footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+
+    /* loading badge */
+    #loadingText{
+      position: fixed;
+      top: 16px; right: 16px;
+      font-size: 13px;
+      color: #cfcfcf;
+      background: linear-gradient(90deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      padding: 8px 12px;
+      border-radius: 10px;
+      z-index: 1200;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.5);
+      display:flex;align-items:center;gap:8px;
+    }
 
     /* small helpers */
     .muted{color:var(--muted)}
     .tag{font-size:12px;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.03)}
-
   </style>
 </head>
 <body>
@@ -159,9 +189,9 @@
     <div id="modal" class="modal" aria-hidden="true">
       <div class="modal-content" role="dialog" aria-label="圖片預覽">
         <div class="modal-left">
-          <button class="icon-btn" id="prevBtn" title="上一張">◀</button>
+          <button class="icon-btn" id="prevBtn" title="上一張" style="position:absolute;left:12px;z-index:10">◀</button>
           <img id="modalImg" src="" alt="" />
-          <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
+          <button class="icon-btn" id="nextBtn" title="下一張" style="position:absolute;right:12px;z-index:10">▶</button>
         </div>
         <aside class="modal-right">
           <div style="display:flex;justify-content:space-between;align-items:center">
@@ -185,179 +215,163 @@
     <footer>Jason驊宸 ❤️ 綵妤Phoebe</footer>
   </div>
 
+  <div id="loadingText">照片正在讀取中…</div>
+
   <script>
-/* ===== 1. 檢查圖片是否存在 ===== */
-function checkImageExists(url) {
-  return new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    // 為避免瀏覽器快取干擾，可以加時間戳（非必要，可移除）
-    img.src = url;
-  });
-}
+  /* ============================
+     Configuration
+     ============================ */
+  const TOTAL = 250; // 最大嘗試數。若你確定只有 150 張，可改成 150。若檔名非數字也可保留本值，主要是防止無限嘗試。
+  const PHOTOS_PER_PAGE = 20;
+  const THUMB_PATH = 'photo/thumb/'; // 縮圖資料夾
+  const FULL_PATH = 'photo/full/';   // 原始圖資料夾
+  const TRY_EXTS = ['jpg','png','webp']; // 常見副檔名
 
-/* ===== 2. 動態建立 items（只加入存在的） ===== */
-const items = [];
-const TOTAL = 150; // 照片編號上限
-const PHOTOS_PER_PAGE = 20;
+  /* global state */
+  const allItems = []; // 已找到的 items
+  let checksCompleted = 0;
+  const galleryEl = document.getElementById('gallery');
+  const totalCountEl = document.getElementById('totalCount');
+  const loadingTextEl = document.getElementById('loadingText');
 
-async function loadAllImages() {
-  // 清空以防重複呼叫
-  items.length = 0;
-
-  for (let i = 1; i <= TOTAL; i++) {
-    const num = String(i).padStart(3, '0');
-
-    // 先檢查 jpg，若不存在再檢查 png
-    const jpgThumb = `photo/thumb/photo${num}.jpg`;
-    const pngThumb = `photo/thumb/photo${num}.png`;
-    const jpgFull = `photo/full/photo${num}.jpg`;
-    const pngFull = `photo/full/photo${num}.png`;
-
-    let thumb = null, full = null, ext = null;
-    if (await checkImageExists(jpgThumb)) {
-      thumb = jpgThumb;
-      full = jpgFull;
-      ext = 'jpg';
-    } else if (await checkImageExists(pngThumb)) {
-      thumb = pngThumb;
-      full = pngFull;
-      ext = 'png';
+  /* helpers: 1) 取得檔名的友善標題與地點  */
+  function parseFilenameToMeta(basename) {
+    // 移除路徑/副檔名
+    // basename 範例: "photo1_海邊" 或 "photo100" 或 "IMG_1234_森林"
+    let name = basename;
+    // 若有底線，以最後一段當地點
+    const parts = name.split('_').filter(Boolean);
+    if (parts.length >= 2) {
+      const location = parts.slice(1).join('_'); // 支援多個底線
+      return {
+        title: location,
+        desc: location
+      };
     }
+    // 若是類似 photo123，抓數字當序號
+    const m = name.match(/(\d+)/);
+    if (m) {
+      return {
+        title: `Photo ${m[1]}`,
+        desc: `${name}`
+      };
+    }
+    // fallback
+    return {
+      title: name,
+      desc: ''
+    };
+  }
 
-    if (thumb && full) {
-      items.push({
-        id: `${ext}-${num}`,
-        title: `Photo ${num}.${ext}`,
-        desc: `拍攝地點 / 小註記 ${num}`,
-        thumb,
-        full,
-        tags: [(i % 3 === 0) ? '外景' : '棚拍']
-      });
+  /* helper: check single url exists by loading image (returns promise) */
+  function checkImageExists(url, timeoutMs = 8000) {
+    return new Promise(resolve => {
+      const img = new Image();
+      let done = false;
+      const t = setTimeout(()=>{ if(!done){ done=true; img.src=''; resolve(false); } }, timeoutMs);
+      img.onload = () => { if(!done){ done=true; clearTimeout(t); resolve(true); } };
+      img.onerror = () => { if(!done){ done=true; clearTimeout(t); resolve(false); } };
+      img.decoding = 'async';
+      img.src = url;
+    });
+  }
+
+  /* create card DOM and append to gallery immediately (progressive load) */
+  function createCardAndAppend(item) {
+    const card = document.createElement('figure');
+    card.className = 'card';
+    card.dataset.id = item.id;
+    card.dataset.full = item.full;
+    card.dataset.tags = (item.tags || []).join(',');
+
+    const img = document.createElement('img');
+    img.className = 'thumb';
+    img.alt = item.title;
+    // lazy load by IntersectionObserver
+    img.dataset.src = item.thumb;
+    img.loading = 'lazy';
+
+    // once thumb loads, add fade-in class
+    img.onload = () => { img.classList.add('loaded'); };
+    img.onerror = () => { card.remove(); };
+
+    const cap = document.createElement('figcaption');
+    cap.className = 'caption';
+    cap.innerHTML = `<div class="title">${escapeHtml(item.title)}</div>
+                     <div class="sub">${escapeHtml(item.desc)}</div>`;
+
+    const heart = document.createElement('div');
+    heart.className = 'heart';
+    const favs = new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'));
+    heart.innerHTML = favs.has(item.id) ? '♥' : '♡';
+    if (favs.has(item.id)) heart.classList.add('active');
+    heart.title = '加入最愛';
+    heart.addEventListener('click', e => {
+      e.stopPropagation();
+      toggleFavFor(item.id, heart);
+    });
+
+    card.append(img, cap, heart);
+    card.addEventListener('click', () => openModalById(item.id));
+    galleryEl.appendChild(card);
+
+    // update counts
+    totalCountEl.textContent = allItems.length;
+
+    // observe for lazy load
+    if ('IntersectionObserver' in window) {
+      lazyObserver.observe(img);
+    } else {
+      // fallback immediate load
+      img.src = img.dataset.src;
     }
   }
-  // 回傳檢查後的 items 長度（方便外部判斷）
-  return items.length;
-}
 
-/* ===== 3. 画廊邏輯（放在一個 function 裡） ===== */
-function initGalleryAndBind() {
-  const gallery = document.getElementById('gallery');
-  const totalCount = document.getElementById('totalCount');
-  const searchInput = document.getElementById('searchInput');
-  const shuffleBtn = document.getElementById('shuffleBtn');
-  const favoritesBtn = document.getElementById('favoritesBtn');
-  const slideshowBtn = document.getElementById('slideshowBtn');
+  /* escape helper for safety */
+  function escapeHtml(s){
+    return (s+'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  }
+
+  /* favorites toggle */
+  function toggleFavFor(id, el) {
+    const arr = JSON.parse(localStorage.getItem('wedding_favs') || '[]');
+    const set = new Set(arr);
+    if (set.has(id)) {
+      set.delete(id);
+      el.classList.remove('active');
+      el.innerHTML = '♡';
+    } else {
+      set.add(id);
+      el.classList.add('active');
+      el.innerHTML = '♥';
+    }
+    localStorage.setItem('wedding_favs', JSON.stringify([...set]));
+  }
+
+  /* modal helpers (open by index or id) */
+  let state = { items: allItems.slice(), filtered: allItems.slice(), idx: 0, playing: false };
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modalImg');
   const modalIndex = document.getElementById('modalIndex');
   const modalTitle = document.getElementById('modalTitle');
   const modalDesc = document.getElementById('modalDesc');
-  const closeBtn = document.getElementById('closeBtn');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
   const downloadBtn = document.getElementById('downloadBtn');
   const toggleFav = document.getElementById('toggleFav');
   const openFull = document.getElementById('openFull');
 
-  let state = {
-    items: items.slice(),
-    filtered: items.slice(),
-    displayed: [],
-    page: 1,
-    idx: 0,
-    playing: false,
-    favorites: new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'))
-  };
-
-  function loadNextPage() {
-    const start = (state.page - 1) * PHOTOS_PER_PAGE;
-    const end = state.page * PHOTOS_PER_PAGE;
-    const nextChunk = state.filtered.slice(start, end);
-    if (nextChunk.length === 0) return;
-    renderGallery(nextChunk, true);
-    state.page++;
+  function rebuildStateLists() {
+    state.items = allItems.slice();
+    // if there's an active search, apply it later from UI
+    state.filtered = state.items.slice();
   }
 
-  function renderGallery(list, append = false) {
-    if (!append) {
-      gallery.innerHTML = '';
-      state.page = 1;
-      state.displayed = [];
-    }
-
-    list.forEach((it, i) => {
-      const card = document.createElement('figure');
-      card.className = 'card';
-      card.dataset.index = state.displayed.length + i;
-      card.dataset.id = it.id;
-      card.dataset.tags = (it.tags || []).join(',');
-
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.loading = 'lazy';
-      img.alt = it.title;
-      img.src = it.thumb;
-      img.dataset.full = it.full;
-      // 圖片若載入失敗則隱藏整個 card（保險措施）
-      img.onerror = () => { card.remove(); };
-
-      const cap = document.createElement('figcaption');
-      cap.className = 'caption';
-      cap.innerHTML = `<div style="font-weight:600">${it.title}</div>
-                       <div style="font-size:12px;color:var(--muted)">${it.desc}</div>`;
-
-      const heart = document.createElement('div');
-      heart.className = 'heart';
-      heart.innerHTML = state.favorites.has(it.id) ? '♥' : '♡';
-      if (state.favorites.has(it.id)) heart.classList.add('active');
-      heart.title = '加入最愛';
-      heart.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleFavFor(it.id, heart);
-      });
-
-      card.append(img, cap, heart);
-      card.addEventListener('click', () => openModal(card.dataset.index));
-      gallery.appendChild(card);
-    });
-
-    if (append) state.displayed = state.displayed.concat(list);
-    else state.displayed = list.slice();
-
-    totalCount.textContent = state.filtered.length;
+  function openModalById(id) {
+    rebuildStateLists(); // make sure lists reflect latest
+    const idx = state.filtered.findIndex(it => it.id === id);
+    if (idx === -1) return;
+    openModal(idx);
   }
 
-  /* Infinite Scroll */
-  let ticking = false;
-  window.addEventListener('scroll', () => {
-    if (ticking) return;
-    ticking = true;
-    requestAnimationFrame(() => {
-      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-      if (scrollTop + clientHeight >= scrollHeight - 200) {
-        loadNextPage();
-      }
-      ticking = false;
-    });
-  });
-
-  /* 收藏功能 */
-  function toggleFavFor(id, el) {
-    if (state.favorites.has(id)) {
-      state.favorites.delete(id);
-      el.classList.remove('active');
-      el.innerHTML = '♡';
-    } else {
-      state.favorites.add(id);
-      el.classList.add('active');
-      el.innerHTML = '♥';
-    }
-    localStorage.setItem('wedding_favs', JSON.stringify([...state.favorites]));
-  }
-
-  /* Modal 操作 */
   function openModal(index) {
     const it = state.filtered[index];
     if (!it) return;
@@ -372,42 +386,39 @@ function initGalleryAndBind() {
       a.download = '';
       a.click();
     };
-    toggleFav.textContent = state.favorites.has(it.id)
-      ? '從最愛移除'
-      : '加入最愛';
+    toggleFav.textContent = (new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'))).has(it.id) ? '從最愛移除' : '加入最愛';
     toggleFav.onclick = () => {
-      toggleFavFor(it.id, document.querySelector(`figure[data-id="${it.id}"] .heart`));
-      toggleFav.textContent = state.favorites.has(it.id)
-        ? '從最愛移除'
-        : '加入最愛';
+      const el = document.querySelector(`figure[data-id="${it.id}"] .heart`);
+      toggleFavFor(it.id, el);
+      toggleFav.textContent = (new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'))).has(it.id) ? '從最愛移除' : '加入最愛';
     };
     openFull.onclick = () => window.open(it.full, '_blank');
     modal.classList.add('open');
-    modal.setAttribute('aria-hidden', 'false');
+    modal.setAttribute('aria-hidden','false');
   }
+
   function closeModal() {
     modal.classList.remove('open');
-    modal.setAttribute('aria-hidden', 'true');
+    modal.setAttribute('aria-hidden','true');
     modalImg.src = '';
   }
-  function next() {
+  function nextModal() {
     state.idx = (state.idx + 1) % state.filtered.length;
     openModal(state.idx);
   }
-  function prev() {
+  function prevModal() {
     state.idx = (state.idx - 1 + state.filtered.length) % state.filtered.length;
     openModal(state.idx);
   }
 
-  closeBtn.onclick = closeModal;
-  prevBtn.onclick = prev;
-  nextBtn.onclick = next;
+  document.getElementById('prevBtn').onclick = prevModal;
+  document.getElementById('nextBtn').onclick = nextModal;
+  document.getElementById('closeBtn').onclick = closeModal;
   modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
   document.addEventListener('keydown', e => {
     if (modal.classList.contains('open')) {
-      if (e.key === 'ArrowRight') next();
-      if (e.key === 'ArrowLeft') prev();
+      if (e.key === 'ArrowRight') nextModal();
+      if (e.key === 'ArrowLeft') prevModal();
       if (e.key === 'Escape') closeModal();
       if (e.code === 'Space') {
         e.preventDefault();
@@ -416,101 +427,230 @@ function initGalleryAndBind() {
     }
   });
 
-  /* 搜尋 / 隨機 / 最愛 按鈕綁定 */
-  searchInput.addEventListener('input', e => {
-    const v = e.target.value.trim().toLowerCase();
-    if (!v) {
-      state.filtered = state.items.slice();
-    } else {
-      state.filtered = state.items.filter(it =>
-        (it.title + it.desc + (it.tags || []).join(' ')).toLowerCase().includes(v)
-      );
-    }
-    renderGallery([], false);
-    loadNextPage();
-  });
-
-  shuffleBtn.addEventListener('click', () => {
-    state.filtered = shuffleArray(state.filtered);
-    renderGallery([], false);
-    loadNextPage();
-  });
-
-  favoritesBtn.addEventListener('click', () => {
-    const showingFav = state.filtered.length ===
-      state.items.filter(it => state.favorites.has(it.id)).length;
-    state.filtered = showingFav
-      ? state.items.slice()
-      : state.items.filter(it => state.favorites.has(it.id));
-    renderGallery([], false);
-    loadNextPage();
-  });
-
-  /* 投影片 */
+  /* slideshow */
   let slideInterval = null;
-  slideshowBtn.addEventListener('click', () => {
+  document.getElementById('slideshowBtn').addEventListener('click', () => {
     if (state.playing) stopSlideshow();
     else startSlideshow();
   });
   function startSlideshow() {
     state.playing = true;
-    slideshowBtn.textContent = '停止';
-    state.filtered = state.items.slice();
-    renderGallery([], false);
-    loadNextPage();
+    document.getElementById('slideshowBtn').textContent = '停止';
+    rebuildStateLists();
+    if (state.filtered.length === 0) return;
     openModal(0);
-    slideInterval = setInterval(() => next(), 3500);
+    slideInterval = setInterval(() => nextModal(), 3500);
   }
   function stopSlideshow() {
     state.playing = false;
-    slideshowBtn.textContent = '投影片播放';
+    document.getElementById('slideshowBtn').textContent = '投影片播放';
     clearInterval(slideInterval);
     slideInterval = null;
     closeModal();
   }
 
-  // 首次載入第一頁
-  renderGallery([], false);
-  loadNextPage();
-}
+  /* search / shuffle / favorites buttons */
+  const searchInput = document.getElementById('searchInput');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const favoritesBtn = document.getElementById('favoritesBtn');
 
-/* ===== 4. 啟動流程（單一入口） ===== */
-(async function startup() {
-  // 建立並顯示載入提示（可改樣式）
-  const loadingText = document.createElement('div');
-  loadingText.id = 'loadingText';
-  loadingText.textContent = '照片正在讀取中,請稍候...';
-  loadingText.style.cssText = `
-    position: fixed;
-    top: 50%; left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 16px;
-    color: #cfcfcf;
-    background: rgba(0,0,0,0.45);
-    padding: 12px 18px;
-    border-radius: 10px;
-    z-index: 1000;
-    font-family: "Noto Sans TC", sans-serif;
-  `;
-  document.body.appendChild(loadingText);
+  searchInput.addEventListener('input', (e) => {
+    const v = e.target.value.trim().toLowerCase();
+    if (!v) {
+      state.filtered = state.items.slice();
+    } else {
+      state.filtered = state.items.filter(it =>
+        (it.title + ' ' + it.desc + ' ' + (it.tags || []).join(' ')).toLowerCase().includes(v)
+      );
+    }
+    // re-render gallery (simple approach: clear and re-append only matched)
+    renderFilteredGallery();
+  });
 
-  // 等待檢查所有檔案（只檢查檔案，不會 render）
-  const found = await loadAllImages();
+  shuffleBtn.addEventListener('click', () => {
+    state.filtered = shuffleArray(state.filtered);
+    renderFilteredGallery();
+  });
 
-  // 若一張也沒找到，顯示友善提示
-  if (found === 0) {
-    loadingText.textContent = '尚未找到任何照片。請確認 photo/thumb/ 與 photo/full/ 中有圖檔。';
-    return;
+  favoritesBtn.addEventListener('click', () => {
+    const favSet = new Set(JSON.parse(localStorage.getItem('wedding_favs') || '[]'));
+    const showingFavOnly = state.filtered.length === state.items.filter(it=>favSet.has(it.id)).length;
+    state.filtered = showingFavOnly ? state.items.slice() : state.items.filter(it=>favSet.has(it.id));
+    renderFilteredGallery();
+  });
+
+  function renderFilteredGallery() {
+    // Clear gallery and re-render only the filtered set (we keep lazy loading but rebuild DOM)
+    galleryEl.innerHTML = '';
+    state.filtered.forEach(it => createCardAndAppend(it));
+    totalCountEl.textContent = state.filtered.length;
   }
 
-  // 初始化畫廊（這裡會 render 首頁）
-  initGalleryAndBind();
+  /* shuffle util */
+  function shuffleArray(arr) {
+    const a = arr.slice();
+    for (let i = a.length-1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
 
-  // 移除 loading
-  document.getElementById('loadingText')?.remove();
-})();
-</script>
+  /* IntersectionObserver for lazy loading thumbnails */
+  const lazyObserver = ('IntersectionObserver' in window) ? new IntersectionObserver((entries, obs) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        const img = e.target;
+        if (img.dataset.src) {
+          img.src = img.dataset.src;
+          delete img.dataset.src;
+        }
+        obs.unobserve(img);
+      }
+    });
+  }, { rootMargin: '200px' }) : null;
 
+  /* ============================
+     Progressive discovery logic
+     ============================ */
 
+  // We will attempt filenames in the simple numeric pattern you use (photo1, photo2 ...),
+  // but to be flexible we try both the "no leading zeros" and "3-digit leading zeros" formats,
+  // and multiple extensions (jpg/png/webp).
+  //
+  // Important: this is front-end probing — it tries to load each file URL. If your server
+  // denies many concurrent requests, you can lower concurrency below.
+  const CONCURRENCY = 8;
+  let running = 0;
+  let nextIndex = 1;
+
+  async function startDiscovery() {
+    // show loading
+    loadingTextEl.style.display = 'flex';
+    // run a small pool
+    const promises = [];
+    for (let i=0;i<CONCURRENCY;i++){
+      promises.push(workerLoop());
+    }
+    await Promise.all(promises);
+    // all checks finished:
+    loadingTextEl.textContent = allItems.length === 0 ? '尚未找到任何照片。請確認 photo/thumb/ 與 photo/full/ 中有圖檔。' : '照片已載入完成';
+    // 隱藏 loading after small delay for UX
+    setTimeout(()=>{ loadingTextEl.style.display = allItems.length===0 ? 'flex' : 'none'; }, 900);
+  }
+
+  async function workerLoop(){
+    while (true) {
+      const idx = nextIndex++;
+      if (idx > TOTAL) break;
+      await tryDiscoverForIndex(idx);
+    }
+  }
+
+  // for a numeric index, try to find a matching file thumbnail and fullsize
+  async function tryDiscoverForIndex(i) {
+    // produce candidate basenames to try:
+    // e.g. photo1, photo001
+    const candidates = [];
+    const noPad = `photo${i}`;
+    const pad3 = `photo${String(i).padStart(3,'0')}`;
+    // also try plain numeric names (1.jpg) in case
+    const numeric = `${i}`;
+
+    [noPad, pad3, numeric].forEach(c => {
+      if (!candidates.includes(c)) candidates.push(c);
+    });
+
+    // For each candidate basename and extension, check thumb and full
+    let found = false;
+    for (const base of candidates) {
+      for (const ext of TRY_EXTS) {
+        const thumbUrl = `${THUMB_PATH}${base}.${ext}`;
+        const fullUrl = `${FULL_PATH}${base}.${ext}`;
+        // check thumb first (faster)
+        const okThumb = await checkImageExists(thumbUrl, 4000);
+        if (!okThumb) continue;
+        // check full (if missing, still we can show thumb and open full as thumb link)
+        const okFull = await checkImageExists(fullUrl, 5000);
+
+        // parse metadata from filename (without extension)
+        const meta = parseFilenameToMeta(base);
+        const id = `${base}.${ext}`;
+        const item = {
+          id,
+          title: meta.title,
+          desc: meta.desc,
+          thumb: thumbUrl,
+          full: okFull ? fullUrl : thumbUrl,
+          tags: []
+        };
+        // add to global items (avoid duplicates)
+        const exists = allItems.find(r => r.id === item.id);
+        if (!exists) {
+          allItems.push(item);
+          // create and append card immediately
+          createCardAndAppend(item);
+        }
+        found = true;
+        break; // found for this base -> stop trying other exts for this base
+      }
+      if (found) break;
+    }
+    // increment progress
+    checksCompleted++;
+  }
+
+  /* escape: avoid XSS if filenames contain weird chars */
+  function sanitizeFilenameForUrl(name) {
+    return encodeURIComponent(name);
+  }
+
+  /* ============================
+     Init
+     ============================ */
+  (function init() {
+    // Start discovery process
+    startDiscovery().catch(err => {
+      console.error('Discovery failed', err);
+      loadingTextEl.textContent = '圖片載入發生錯誤，請查看控制台。';
+    });
+
+    // initial render (empty) and other UI binds (shuffle/search handled above)
+    totalCountEl.textContent = '0';
+  })();
+
+  /* ============================
+     Utility & Performance notes
+     ============================ */
+
+  // If you想要改為完全自訂檔名，最佳做法是在伺服器端生成一個 JSON 清單（files.json）
+  // 例如： /photo/files.json => [{ "base":"photo1_海邊", "ext":"jpg" }, ...]
+  // 前端只要 fetch 一次該 JSON 就能立即知道所有檔名並快速渲染（也是建議做法）。
+  // 但本版本保證：在沒有 server manifest 的情況下，會自動掃描 photo1..photoN 並逐張顯示。
+
+  // 防止 CORS / hotlink 問題：確保你的圖片可以被網頁直接載入，若出現 403/404，前端會自動略過該檔案。
+
+  /* ============================
+     小工具：在 console 可呼叫以方便測試
+     ============================ */
+  window.__gallery_debug = {
+    allItems,
+    rerender: () => renderFilteredGallery()
+  };
+
+  /* ============================
+     － 結尾小函式 －
+     ============================ */
+  // If you want to programmatically re-scan (例如新增照片後)，可呼叫：
+  window.rescanPhotos = async function(max=TOTAL){
+    // reset
+    TOTAL = max;
+    nextIndex = 1;
+    allItems.length = 0;
+    galleryEl.innerHTML = '';
+    await startDiscovery();
+  };
+
+  </script>
 </body>
 </html>
