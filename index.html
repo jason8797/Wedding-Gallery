@@ -230,6 +230,23 @@
         display: inline-block;   /* 讓 auto margin 生效 */
       }
     }
+    /* --- 讓 數字 + 關閉 + 下載 水平置中 --- */
+    .modal-header-row {
+      display: flex;
+      justify-content: center;/* ⭐置中 */
+      align-items: center;
+      gap: 14px;/* 數字與按鈕間距 */
+      width: 100%;
+      text-align: center;
+    }
+
+    /* --- 讓兩顆按鈕更靠近（縮小間距） --- */
+    .modal-header-row .meta {
+      display: flex;
+      gap: 6px;/* ⭐按鈕間距縮小 */
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -272,7 +289,7 @@
           <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
         </div>
         <aside class="modal-right">
-          <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="modal-header-row">
             <div class="muted" id="modalIndex">0 / 0</div>
             <div class="meta">
               <button class="btn" id="closeBtn">關閉</button>
