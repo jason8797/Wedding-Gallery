@@ -181,6 +181,7 @@
       .modal-right > div:first-child {
         flex-wrap: wrap;
         gap: 10px;
+        justify-content: center; /* 讓整個按鈕區置中 */
       }
 
       .search {
@@ -194,6 +195,8 @@
         font-size: 14px;
         width: auto;
         white-space: nowrap;
+        margin: 0 auto;          /* 按鈕本身置中 */
+        display: inline-block;   /* 讓 auto margin 生效 */
       }
     }
   </style>
