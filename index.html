@@ -86,6 +86,37 @@
     .footer {
       padding: 10px; /* 上右下左皆為 20px */
     }
+    
+    
+    @media (max-width: 768px) {
+
+      /* 把上方 index + 按鈕變成直向排列，避免擠壓 */
+      .modal-right > div:first-child {
+        flex-direction: column;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 10px;
+      }
+
+      /* 按鈕區塊（關閉 + 下載）置中 */
+      .meta {
+        width: 100%;
+        display: flex;
+        justify-content: center !important;
+        gap: 12px;
+      }
+
+      /* 按鈕本身避免超出螢幕 */
+      #closeBtn,
+      #downloadBtn {
+        padding: 8px 16px;
+        white-space: nowrap;
+        width: auto;
+        display: inline-block;
+      }
+    }
+
+
     /* ---- RWD: Header ---- */
     @media (max-width: 768px) {
       body {
