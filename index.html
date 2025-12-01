@@ -247,6 +247,27 @@
       align-items: center;
       justify-content: center;
     }
+    /* ---- 🔥 強制：橫向瀏覽（landscape）時採用左右佈局 ---- */
+    @media screen and (orientation: landscape) {
+
+      .modal-content {
+        flex-direction: row !important;
+        max-height: 90vh;
+      }
+
+      .modal-left img {
+        max-height: 90vh;
+        width: auto;
+        object-fit: contain;
+      }
+
+      .modal-right {
+        width: 360px !important;
+        max-height: 90vh;
+        overflow-y: auto;
+        padding: 18px;
+      }
+    }
   </style>
 </head>
 <body>
