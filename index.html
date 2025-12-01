@@ -183,19 +183,17 @@
         gap: 10px;
       }
 
-      /*.modal-right .meta {
-        gap: 8px;
-      }*/
-
       .search {
         padding: 6px 10px;
       }
 
-      /* 讓關閉與下載按鈕變小一點、靠內一些 */
+      /* ---- 修正：避免按鈕溢出畫面 ---- */
       #closeBtn,
       #downloadBtn {
-        padding: 6px 50px;
+        padding: 6px 14px;    /* 原本 6px 50px 會直接溢出 */
         font-size: 14px;
+        width: auto;
+        white-space: nowrap;
       }
     }
   </style>
