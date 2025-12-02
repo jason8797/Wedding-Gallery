@@ -743,6 +743,41 @@
         showPhotoInModal(currentIndex);
       }
     };
+    // === 下載原圖 ===
+    document.getElementById("downloadBtn").addEventListener("click", () => {
+        const url = currentItem.full;
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = url.split("/").pop(); // 用檔名下載
+        a.click();
+    });
+
+    // === 開啟原始尺寸 ===
+    document.getElementById("openFull").addEventListener("click", () => {
+        const url = currentItem.full;
+        window.open(url, "_blank");
+    });
+
+    // === 加入最愛 ===
+    document.getElementById("toggleFav").addEventListener("click", () => {
+        if (!currentItem) return;
+
+        currentItem.fav = !currentItem.fav;
+
+        // 儲存到 localStorage
+        const favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+        if (currentItem.fav) {
+            favs.push(currentItem.id);
+        } else {
+            const idx = favs.indexOf(currentItem.id);
+            if (idx !== -1) favs.splice(idx, 1);
+        }
+        localStorage.setItem("favorites", JSON.stringify(favs));
+
+        // 更新按鈕文字
+        document.getElementById("toggleFav").textContent =
+            currentItem.fav ? "取消最愛" : "加入最愛";
+    });
   </script>
 </body>
 </html>
