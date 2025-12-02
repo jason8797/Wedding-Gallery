@@ -1,308 +1,270 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="zh-Hant">
 <head>
-  <meta charset="utf-8" />
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>我們的婚紗｜相片集</title>
   <meta name="description" content="精緻浪漫的婚紗相片集" />
 
   <style>
-    :root{
-      --bg:#0f0f10;
-      --card:#0f1720;
-      --muted:#9aa5b1;
-      --accent:#f6d0d6;
-      --accent-2:#8ecae6;
-      --glass: rgba(255,255,255,0.06);
-      --radius:14px;
-      --maxwidth:1200px;
-      --gutter:14px;
-      --transition:260ms ease;
-      font-family: "Noto Sans TC", system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #ffe4ec, #ffffff, #e3f2ff);
+      font-family: 'Segoe UI', sans-serif;
     }
-    html,body{height:100%;}
-    body{
-      margin:0;background: linear-gradient(180deg,#050507 0%, #0b0b0d 40%);
-      color:#f3f6f8;padding:32px 18px;display:flex;justify-content:center;align-items:flex-start;
-      -webkit-font-smoothing:antialiased;box-sizing:border-box;
+
+    h1 {
+      text-align: center;
+      margin: 20px 0;
+      font-size: 32px;
+      color: #555;
     }
-    .wrap{width:100%;max-width:var(--maxwidth);margin:0 auto;}
-    header{display:flex;align-items:center;gap:18px;justify-content:space-between;margin-bottom:18px;}
-    .brand{display:flex;align-items:center;gap:12px;}
-    .logo{width:64px;height:64px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      box-shadow:0 6px 30px rgba(0,0,0,0.6);display:flex;align-items:center;justify-content:center;font-weight:700;color:#0b0b0d;font-size:18px;transform:rotate(-8deg);}
-    h1{margin:0;font-family:"Playfair Display","Noto Serif TC",serif;font-size:20px;}
-    .subtitle{color:var(--muted);font-size:13px}
-    .controls{display:flex;gap:10px;align-items:center;}
-    .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition);}
-    .search{display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted);}
-    .search input{background:transparent;border:0;outline:0;color:inherit;width:220px}
 
-    .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 18px;color:var(--muted);font-size:14px}
-
-    /* masonry */
-    .gallery{
-      column-count:4;
-      column-gap:var(--gutter);
+    /* ---- Gallery Grid ---- */
+    #gallery {
+      max-width: 980px;
+      margin: auto;
+      padding: 10px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+      gap: 12px;
     }
-    @media (max-width:1100px){.gallery{column-count:3}}
-    @media (max-width:700px){.gallery{column-count:2}}
-    @media (max-width:420px){.gallery{column-count:1}}
 
-    .card{
-      display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;
-      background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
-      box-shadow:0 8px 24px rgba(3,7,11,0.6);transition:transform var(--transition);
-      transform-origin:center;
+    .photo-card {
+      position: relative;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      cursor: pointer;
+      background: #fff;
+      transition: transform 0.25s;
     }
-    .card:hover{transform:translateY(-6px) scale(1.01)}
 
-    .thumb{
-      display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b;
-      opacity:0; transform: translateY(6px); transition: opacity 360ms ease, transform 360ms ease;
+    .photo-card:hover {
+      transform: scale(1.05);
     }
-    .thumb.loaded{opacity:1; transform: translateY(0);}
 
-    .caption{
-      position:absolute;left:12px;bottom:12px;background:linear-gradient(90deg,rgba(0,0,0,0.45),rgba(0,0,0,0.25));
-      backdrop-filter: blur(6px);padding:8px 10px;border-radius:999px;font-size:13px;
+    .photo-card img {
+      width: 100%;
+      height: 160px;
+      object-fit: cover;
+      display: block;
     }
-    .meta{display:flex;gap:8px;align-items:center}
-    .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px;user-select:none}
-    .heart.active{color:#ff6b81}
 
-    .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px}
-    .modal.open{display:flex}
-    .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px}
-    .modal-left{flex:1;display:flex;align-items:center;justify-content:center;background:#0b0b0b;position:relative}
-    .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block}
-    .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px}
-    .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+    /* ---- Modal ---- */
+    #photoModal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.85);
+      backdrop-filter: blur(4px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
 
-    footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
+    #photoModal.show {
+      opacity: 1;
+    }
 
+    #modalImg {
+      max-width: 92vw;
+      max-height: 88vh;
+      border-radius: 12px;
+      opacity: 0;
+      transition: opacity .25s ease;
+    }
+
+    /* ---- Spinner ---- */
     #modalLoading {
-      position:absolute;
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      border: 5px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ---- Prev / Next buttons ---- */
+    .nav-btn {
+      position: absolute;
       top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 30;
-      pointer-events: none;
-      background: rgba(0,0,0,0.45);
-      padding: 12px 18px;
-      border-radius: 10px;
-      backdrop-filter: blur(6px);
-      color: #ccc;
-      font-size: 16px;
-      display:none;
+      transform: translateY(-50%);
+      padding: 16px 22px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 26px;
+      user-select: none;
+    }
+
+    #prevBtn { left: 20px; }
+    #nextBtn { right: 20px; }
+
+    /* ---- Close Button ---- */
+    #closeBtn {
+      position: absolute;
+      top: 20px;
+      right: 25px;
+      font-size: 32px;
+      color: white;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    /* ---- Mobile RWD ---- */
+    @media (max-width: 768px) {
+      #prevBtn, #nextBtn {
+        padding: 12px 16px;
+        font-size: 22px;
+      }
+      #closeBtn {
+        font-size: 28px;
+        top: 15px;
+        right: 18px;
+      }
     }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="logo">J&amp;P</div>
-        <div>
-          <h1>Jason &amp; Phoebe</h1>
-          <div class="subtitle">2026.01.24 • 期待與您相見</div>
-        </div>
-      </div>
 
-      <div class="controls">
-        <div class="search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
-            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2"
-                  stroke-linecap="round" stroke-linejoin="round"></path>
-            <circle cx="11" cy="11" r="6" stroke="currentColor"
-                    stroke-width="2" stroke-linecap="round"
-                    stroke-linejoin="round"></circle>
-          </svg>
-          <input id="searchInput" placeholder="搜尋（地點/詞）..." />
-        </div>
+  <h1>💍 Wedding Gallery</h1>
 
-        <button class="btn" id="shuffleBtn">隨機</button>
-        <button class="btn" id="favoritesBtn">最愛</button>
-      </div>
-    </header>
+  <!-- 相簿 -->
+  <div id="gallery"></div>
 
-    <div class="info-row">
-      <div>共 <span id="totalCount">0</span> 張</div>
-      <div class="muted">|</div>
-      <div class="muted">點擊圖片可看清晰圖</div>
-    </div>
-
-    <main>
-      <section id="gallery" class="gallery"></section>
-    </main>
-
-    <!-- Modal -->
-    <div id="modal" class="modal" aria-hidden="true">
-      <div class="modal-content">
-        <div class="modal-left">
-          <button class="icon-btn" id="prevBtn">◀</button>
-          <img id="modalImg" src="" alt="" />
-          <div id="modalLoading">讀取中…</div>
-          <button class="icon-btn" id="nextBtn">▶</button>
-        </div>
-
-        <aside class="modal-right">
-          <div class="modal-header-row" style="display:flex;justify-content:center;align-items:center;gap:12px;">
-            <div id="modalIndex" class="muted">0 / 0</div>
-            <div class="meta">
-              <button class="btn" id="closeBtn">關閉</button>
-              <button class="btn" id="downloadBtn">下載</button>
-            </div>
-          </div>
-
-          <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div>
-          <div id="modalDesc" class="muted" style="font-size:14px">描述文字</div>
-
-          <div style="margin-top:12px">
-            <button class="btn" id="toggleFav">加入最愛</button>
-            <button class="btn" id="openFull">檢視原始尺寸</button>
-          </div>
-        </aside>
-      </div>
-    </div>
-
-    <footer>Jason驊宸 ❤️ 綵妤Phoebe</footer>
+  <!-- Modal -->
+  <div id="photoModal">
+    <div id="modalLoading"></div>
+    <img id="modalImg" />
+    <div id="prevBtn" class="nav-btn" onclick="showPrev()">❮</div>
+    <div id="nextBtn" class="nav-btn" onclick="showNext()">❯</div>
+    <div id="closeBtn" onclick="closeModal()">✕</div>
   </div>
 
-  <div id="loadingBubble" class="loading-bubble" style="display:none">照片載入中…</div>
-
-  <!-- ★★★ JS 會放在下一段 ★★★ -->
+  <!-- JS -->
   <script>
-/* ------------------------------
-    設定區
------------------------------- */
-const TOTAL_PHOTOS = 300;    // 你有幾張照片就填幾張
-const PHOTOS_PER_LOAD = 20;  // 每次 infinite scroll 載入幾張
+    const TOTAL_PHOTOS = 300;      // 你有幾張照片就填幾張
+    const PHOTOS_PER_LOAD = 20;
 
-let loadedPhotos = 0;
-let photos = [];
-let currentIndex = 0;
+    let photos = [];
+    let loadedPhotos = 0;
+    let currentIndex = 0;
 
-/* ------------------------------
-    初始化：建立圖片清單（檢查 JPG → PNG）
------------------------------- */
-async function buildPhotoList() {
-  for (let i = 1; i <= TOTAL_PHOTOS; i++) {
-    const name = `photo${i}`;
-    const jpg = `photo/full/${name}.jpg`;
-    const png = `photo/full/${name}.png`;
+    /* ------------------------------
+        檢查 JPG → 不存在再用 PNG
+    ------------------------------ */
+    function checkImage(url) {
+      return fetch(url, { method: "HEAD" })
+        .then(res => res.ok)
+        .catch(() => false);
+    }
 
-    const resolved = await checkImage(jpg) ? jpg : png;
+    /* ------------------------------
+        建立圖片清單
+    ------------------------------ */
+    async function buildPhotoList() {
+      for (let i = 1; i <= TOTAL_PHOTOS; i++) {
+        const name = `photo${i}`;
+        const jpg = `photo/full/${name}.jpg`;
+        const png = `photo/full/${name}.png`;
 
-    photos.push({
-      id: i,
-      src: resolved,
-      thumb: resolved.replace("/full/", "/thumb/")
+        const use = (await checkImage(jpg)) ? jpg : png;
+
+        photos.push({
+          src: use,
+          thumb: use.replace("/full/", "/thumb/")
+        });
+      }
+      loadMorePhotos();
+    }
+
+    /* ------------------------------
+        Infinite Scroll 載入
+    ------------------------------ */
+    function loadMorePhotos() {
+      const wrap = document.getElementById("gallery");
+      const slice = photos.slice(loadedPhotos, loadedPhotos + PHOTOS_PER_LOAD);
+
+      slice.forEach((p, idx) => {
+        const card = document.createElement("div");
+        card.className = "photo-card";
+        card.innerHTML = `<img src="${p.thumb}" onclick="openModal(${loadedPhotos + idx})">`;
+        wrap.appendChild(card);
+      });
+
+      loadedPhotos += slice.length;
+    }
+
+    window.addEventListener("scroll", () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+        loadMorePhotos();
+      }
     });
-  }
 
-  loadMorePhotos();
-}
+    /* ------------------------------
+        Modal 開啟
+    ------------------------------ */
+    function openModal(index) {
+      currentIndex = index;
+      const modal = document.getElementById("photoModal");
+      const modalImg = document.getElementById("modalImg");
+      const loading = document.getElementById("modalLoading");
 
-/* ------------------------------
-    檢查圖片是否存在
------------------------------- */
-function checkImage(url) {
-  return fetch(url, { method: "HEAD" })
-    .then((res) => res.ok)
-    .catch(() => false);
-}
+      modal.style.display = "flex";
+      modal.classList.add("show");
 
-/* ------------------------------
-    Infinite Scroll 載入圖片
------------------------------- */
-function loadMorePhotos() {
-  const container = document.getElementById("gallery");
-  const slice = photos.slice(loadedPhotos, loadedPhotos + PHOTOS_PER_LOAD);
+      loading.style.display = "block";
+      modalImg.style.opacity = "0";
 
-  slice.forEach((p, index) => {
-    const card = document.createElement("div");
-    card.className = "photo-card";
-    card.innerHTML = `
-      <img src="${p.thumb}" loading="lazy" onclick="openModal(${loadedPhotos + index})">
-    `;
-    container.appendChild(card);
-  });
+      modalImg.onload = () => {
+        loading.style.display = "none";
+        modalImg.style.opacity = "1";
+      };
 
-  loadedPhotos += slice.length;
-}
+      modalImg.src = photos[index].src;
+    }
 
-/* ------------------------------
-    滾到底部自動載入
------------------------------- */
-window.addEventListener("scroll", () => {
-  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
-    loadMorePhotos();
-  }
-});
+    /* ------------------------------
+        Modal 左右切換
+    ------------------------------ */
+    function showNext() {
+      currentIndex = (currentIndex + 1) % photos.length;
+      openModal(currentIndex);
+    }
 
-/* ------------------------------
-    Modal：開啟
------------------------------- */
-function openModal(index) {
-  currentIndex = index;
+    function showPrev() {
+      currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+      openModal(currentIndex);
+    }
 
-  const modal = document.getElementById("photoModal");
-  const modalImg = document.getElementById("modalImg");
-  const loading = document.getElementById("modalLoading");
+    /* ------------------------------
+        點背景關閉
+    ------------------------------ */
+    document.getElementById("photoModal").addEventListener("click", (e) => {
+      if (e.target.id === "photoModal") closeModal();
+    });
 
-  modal.style.display = "flex";
-  modal.classList.add("show");
+    function closeModal() {
+      const modal = document.getElementById("photoModal");
+      modal.classList.remove("show");
+      setTimeout(() => modal.style.display = "none", 200);
+    }
 
-  loading.style.display = "block";
-  modalImg.style.opacity = "0";
-
-  modalImg.onload = () => {
-    loading.style.display = "none";
-    modalImg.style.opacity = "1";
-  };
-
-  modalImg.src = photos[index].src;
-}
-
-/* ------------------------------
-    Modal：左右切換
------------------------------- */
-function showNext() {
-  currentIndex = (currentIndex + 1) % photos.length;
-  openModal(currentIndex);
-}
-
-function showPrev() {
-  currentIndex = (currentIndex - 1 + photos.length) % photos.length;
-  openModal(currentIndex);
-}
-
-/* ------------------------------
-    Modal：點背景關閉
------------------------------- */
-document.getElementById("photoModal").addEventListener("click", (e) => {
-  if (e.target.id === "photoModal") {
-    closeModal();
-  }
-});
-
-/* ------------------------------
-    Modal：關閉
------------------------------- */
-function closeModal() {
-  const modal = document.getElementById("photoModal");
-  modal.classList.remove("show");
-  setTimeout(() => (modal.style.display = "none"), 200);
-}
-
-/* ------------------------------
-    初始化執行
------------------------------- */
-buildPhotoList();
-</script>
-
+    /* ------------------------------
+        初始化
+    ------------------------------ */
+    buildPhotoList();
+  </script>
 
 </body>
 </html>
