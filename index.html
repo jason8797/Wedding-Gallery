@@ -604,6 +604,37 @@
       // Start discovery but don't wait for finish — discovered images will append as they are found
       discoverImagesIncrementally();
     });
+    /* --- Swipe 手勢支援（手機可左右滑動切換照片） --- */
+    let touchStartX = 0;
+    let touchEndX = 0;
+
+    const modalLeft = document.querySelector(".modal-left");
+
+    modalLeft.addEventListener("touchstart", function (e) {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    modalLeft.addEventListener("touchend", function (e) {
+      touchEndX = e.changedTouches[0].screenX;
+      handleSwipeGesture();
+    }, { passive: true });
+
+    function handleSwipeGesture() {
+      const deltaX = touchEndX - touchStartX;
+
+      // 設定滑動觸發的最小距離（避免誤觸）
+      const threshold = 50;
+
+      if (Math.abs(deltaX) < threshold) return;
+
+      if (deltaX < 0) {
+        // 往左滑（下一張）
+        document.getElementById("nextBtn").click();
+      } else {
+        // 往右滑（上一張）
+        document.getElementById("prevBtn").click();
+      }
+    }
   </script>
 </body>
 </html>
