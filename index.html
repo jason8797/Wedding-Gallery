@@ -488,6 +488,18 @@
       document.getElementById('totalCount').textContent = items.length;
     }
 
+    function toggleFavorite(id) {
+      let favs = JSON.parse(localStorage.getItem("favorites") || "[]");
+
+      if (favs.includes(id)) {
+        favs = favs.filter(f => f !== id);
+      } else {
+        favs.push(id);
+      }
+
+      localStorage.setItem("favorites", JSON.stringify(favs));
+    }
+
     function toggleFavFor(id, el) {
       const raw = localStorage.getItem('wedding_favs')||'[]';
       const arr = JSON.parse(raw);
@@ -497,40 +509,35 @@
       localStorage.setItem('wedding_favs', JSON.stringify(arr));
     }
 
-    /* Discovery (incremental): 從1開始，一直檢查到連續 MAX_MISSES 找不到則停止 */
-    async function discoverImagesIncrementally() {
-      document.getElementById('loadingBubble').style.display = 'block';
+    async function discoverPhotos() {
+      let index = 1;
       let misses = 0;
-      let i = 1;
-      while (i <= MAX_INDEX) {
-        const v = await findVariantForIndex(i);
-        if (v) {
-          misses = 0; // reset consecutive miss counter
-          const title = extractTitleFromFilename(v.thumb);
-          const item = {
-            id: `${v.ext}-${v.namePart}`,
-            title: title,
-            desc: `編號 ${v.namePart}`,
-            thumb: v.thumb,
-            full: v.full,
-            tags: [] // 可自行加入
-          };
-          items.push(item);
-          // 立即 append（使用 items.length-1 做 index）
-          appendCard(item, items.length - 1);
-          updateTotalCount();
+
+      while (misses < MAX_MISSES && index < MAX_INDEX) {
+        const thumbUrl = `${THUMB_DIR}/${index}.jpg`;
+
+        const exists = await checkImageExists(thumbUrl);
+        if (exists) {
+          // 保留真實檔名，不要用 index 當 key
+          const fileName = `${index}.jpg`;
+
+          items.push({
+            id: fileName,
+            thumb: `${THUMB_DIR}/${fileName}`,
+            full: `${FULL_DIR}/${fileName}`,   // ← 不再使用 index，保留真實檔名
+            title: fileName,
+            desc: ""
+          });
+
+          misses = 0;
         } else {
           misses++;
-          // 若連續 misses 達上限，停止
-          if (misses >= MAX_MISSES) break;
         }
-        i++;
-        // micro-yield to keep UI responsive
-        await new Promise(r => setTimeout(r, 0));
+        index++;
       }
+
       discoveryDone = true;
-      // hide loading after短延遲
-      setTimeout(()=>{ document.getElementById('loadingBubble').style.display='none'; }, 300);
+      renderGallery(items);
     }
 
     /* Paging: render 'next page' from already discovered items */
@@ -541,6 +548,32 @@
       for (let i = current; i < end; i++) {
         appendCard(items[i], i);
       }
+    }
+
+    function openModal(i) {
+      const item = items[i];
+      CURRENT_INDEX = i;
+
+      modalImg.src = item.full;        // ← 直接用正確的 full 檔名
+      modalIndex.textContent = `${i+1} / ${items.length}`;
+      modalTitle.textContent = item.title || item.id;
+      modalDesc.textContent = item.desc || "";
+
+      // 更新按鈕
+      downloadBtn.onclick = () => downloadImage(item.full);
+      toggleFav.onclick = () => toggleFavorite(item.id);
+      openFull.onclick = () => window.open(item.full, "_blank");
+
+      modal.classList.add('open');
+    }
+
+    function downloadImage(url) {
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = url.split('/').pop();   // 下載正確原檔名
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
     }
 
     /* Modal & controls (basic) */
