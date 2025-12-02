@@ -190,8 +190,8 @@ let currentIndex = 0;
 async function buildPhotoList() {
   for (let i = 1; i <= TOTAL_PHOTOS; i++) {
     const name = `photo${i}`;
-    const jpg = `photos/full/${name}.jpg`;
-    const png = `photos/full/${name}.png`;
+    const jpg = `photo/full/${name}.jpg`;
+    const png = `photo/full/${name}.png`;
 
     const resolved = await checkImage(jpg) ? jpg : png;
 
