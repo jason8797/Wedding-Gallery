@@ -744,63 +744,7 @@
         showPhotoInModal(currentIndex);
       }
     };
-    /* ===Modal 按鈕功能修正區=== */
-
-    /* 👉 這個變數會在你開啟 modal 時被設定 */
-    let currentPhoto = { id: null, full: "", thumb: "" };
-
-    /* 開啟 Modal 時請設定 currentPhoto（你原本的 openModal 內要補上） */
-    function openModal(item, index) {
-      currentPhoto = item;
-      updateFavButton(); // ← 讓最愛按鈕顯示正確
-      modalImg.src = item.full;
-      modalIndex.textContent = `${index + 1} / ${items.length}`;
-      modalTitle.textContent = item.title || `照片 #${item.id}`;
-      modalDesc.textContent = item.desc || "";
-      modal.classList.add("open");
-    }
-
-    /* ===1️⃣下載按鈕==== */
-    document.getElementById("downloadBtn").addEventListener("click", () => {
-      if (!currentPhoto.full) return;
-
-      const a = document.createElement("a");
-      a.href = currentPhoto.full;
-      a.download = `photo_${currentPhoto.id}.jpg`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    });
-
-    /* ===2️⃣ 檢視原始尺寸=== */
-    document.getElementById("openFull").addEventListener("click", () => {
-      if (!currentPhoto.full) return;
-      window.open(currentPhoto.full, "_blank");
-    });
-
-    /* ===3️⃣ 加入最愛=== */
-
-    let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
-
-    document.getElementById("toggleFav").addEventListener("click", () => {
-      const id = currentPhoto.id;
-
-      if (favorites.includes(id)) {
-        favorites = favorites.filter(x => x !== id);
-        document.getElementById("toggleFav").textContent = "加入最愛";
-      } else {
-        favorites.push(id);
-        document.getElementById("toggleFav").textContent = "移除最愛";
-      }
-
-      localStorage.setItem("favorites", JSON.stringify(favorites));
-    });
-
-    /* 每次打開 modal 時同步按鈕文字 */
-    function updateFavButton() {
-      const btn = document.getElementById("toggleFav");
-      btn.textContent = favorites.includes(currentPhoto.id) ? "移除最愛" : "加入最愛";
-    }
+    
 
   </script>
 </body>
