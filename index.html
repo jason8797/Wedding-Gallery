@@ -307,6 +307,10 @@
         <div class="modal-left">
           <button class="icon-btn" id="prevBtn" title="上一張">◀</button>
           <img id="modalImg" src="" alt="" />
+          <div id="modalLoading"
+             style="position:absolute; color:#ccc; font-size:16px; display:none;">
+              讀取中…
+          </div>
           <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
         </div>
         <aside class="modal-right">
@@ -635,6 +639,64 @@
         document.getElementById("prevBtn").click();
       }
     }
+    /* ---- Modal 切換顯示圖片 (加入載入中提示) ---- */
+    function showPhotoInModal(index) {
+      const item = items[index];
+      if (!item) return;
+
+      const modalImg = document.getElementById("modalImg");
+      const modalLoading = document.getElementById("modalLoading");
+
+      // 隱藏圖片、顯示 loading
+      modalImg.style.display = "none";
+      modalLoading.style.display = "block";
+      modalLoading.textContent = "讀取中…";
+
+      // 更新右側資訊（標題 / 敘述 / 目前第幾張）
+      document.getElementById("modalIndex").textContent = `${index + 1} / ${items.length}`;
+      document.getElementById("modalTitle").textContent = item.title || "無標題";
+      document.getElementById("modalDesc").textContent = item.desc || "";
+
+      // 載入新圖片前，先清空 src 避免殘影造成跳動
+      modalImg.src = "";
+      modalImg.decoding = "async";
+
+      const imgLoader = new Image();
+      imgLoader.decoding = "async";
+      imgLoader.src = item.full;
+
+      imgLoader.onload = () => {
+        modalImg.src = item.full;
+
+        // 載入成功 → 顯示圖片、隱藏 loading
+        modalLoading.style.display = "none";
+        modalImg.style.display = "block";
+      };
+
+      imgLoader.onerror = () => {
+        modalLoading.textContent = "載入失敗";
+      };
+    }
+
+    function openModal(startIndex) {
+      currentIndex = startIndex;
+      document.getElementById("modal").classList.add("open");
+      showPhotoInModal(currentIndex);
+    }
+
+    document.getElementById("prevBtn").onclick = () => {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showPhotoInModal(currentIndex);
+      }
+    };
+
+    document.getElementById("nextBtn").onclick = () => {
+      if (currentIndex < items.length - 1) {
+        currentIndex++;
+        showPhotoInModal(currentIndex);
+      }
+    };
   </script>
 </body>
 </html>
