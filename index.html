@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>我們的婚紗｜相片集</title>
   <meta name="description" content="精緻浪漫的婚紗相片集" />
+
   <style>
     :root{
       --bg:#0f0f10;
@@ -36,6 +37,7 @@
     .btn{background:var(--glass);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:12px;color:var(--accent);cursor:pointer;backdrop-filter: blur(6px);transition:all var(--transition);}
     .search{display:flex;align-items:center;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);padding:8px 12px;border-radius:999px;border:1px solid rgba(255,255,255,0.03);gap:8px;color:var(--muted);}
     .search input{background:transparent;border:0;outline:0;color:inherit;width:220px}
+
     .info-row{display:flex;gap:12px;align-items:center;margin:10px 0 18px;color:var(--muted);font-size:14px}
 
     /* masonry */
@@ -47,7 +49,6 @@
     @media (max-width:700px){.gallery{column-count:2}}
     @media (max-width:420px){.gallery{column-count:1}}
 
-    /* card */
     .card{
       display:inline-block;width:100%;margin:0 0 var(--gutter);position:relative;border-radius:12px;overflow:hidden;
       background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);
@@ -55,10 +56,9 @@
       transform-origin:center;
     }
     .card:hover{transform:translateY(-6px) scale(1.01)}
-    /* thumbnail */
+
     .thumb{
       display:block;width:100%;height:auto;vertical-align:middle;background:#0b0b0b;
-      
       opacity:0; transform: translateY(6px); transition: opacity 360ms ease, transform 360ms ease;
     }
     .thumb.loaded{opacity:1; transform: translateY(0);}
@@ -71,7 +71,6 @@
     .heart{cursor:pointer;font-size:16px;padding:6px;border-radius:8px;user-select:none}
     .heart.active{color:#ff6b81}
 
-    /* modal */
     .modal{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:linear-gradient(180deg,rgba(2,2,2,0.8),rgba(8,8,10,0.92));z-index:60;padding:20px}
     .modal.open{display:flex}
     .modal-content{max-width:1100px;width:100%;max-height:90vh;border-radius:12px;overflow:hidden;display:flex;gap:12px}
@@ -79,244 +78,27 @@
     .modal-left img{max-width:100%;max-height:90vh;border-radius:10px;display:block}
     .modal-right{width:340px;padding:18px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);display:flex;flex-direction:column;gap:12px}
     .icon-btn{background:transparent;border:1px solid rgba(255,255,255,0.06);padding:8px 10px;border-radius:10px;cursor:pointer}
+
     footer{margin-top:26px;color:var(--muted);font-size:13px;text-align:center}
 
-    /* loading bubble */
-    .loading-bubble{position:fixed;right:20px;bottom:20px;background:rgba(0,0,0,0.5);padding:8px 12px;border-radius:999px;color:var(--muted);backdrop-filter:blur(6px);font-size:13px}
-    .footer {
-      padding: 10px; /* 上右下左皆為 20px */
-    }
-    
-    
-    @media (max-width: 768px) {
-
-      /* 把上方 index + 按鈕變成直向排列，避免擠壓 */
-      .modal-right > div:first-child {
-        flex-direction: column;
-        align-items: center !important;
-        justify-content: center !important;
-        gap: 10px;
-      }
-
-      /* 按鈕區塊（關閉 + 下載）置中 */
-      .meta {
-        width: 100%;
-        display: flex;
-        justify-content: center !important;
-        gap: 4px;
-      }
-
-      /* 按鈕本身避免超出螢幕 */
-      #closeBtn,
-      #downloadBtn {
-        padding: 8px 8px;
-        white-space: nowrap;
-        width: auto;
-        display: inline-block;
-      }
-    }
-
-
-    /* ---- RWD: Header ---- */
-    @media (max-width: 768px) {
-      body {
-        padding: 20px 12px;
-      }
-
-      header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 12px;
-      }
-
-      .controls {
-        width: 100%;
-        flex-wrap: wrap;
-        gap: 8px;
-      }
-
-      .search input {
-        width: 140px;
-      }
-
-      h1 {
-        font-size: clamp(16px, 4vw, 22px);
-      }
-    }
-
-    /* ---- RWD: Gallery spacing ---- */
-    @media (max-width: 600px) {
-      :root {
-        --gutter: 10px;
-      }
-
-      .card {
-        border-radius: 10px;
-      }
-
-      .caption {
-        font-size: 12px;
-        padding: 6px 8px;
-      }
-    }
-
-    /* ---- RWD: Modal Layout ---- */
-    @media (max-width: 820px) {
-      .modal-content {
-        flex-direction: column;
-        max-height: 100vh;
-      }
-
-      .modal-right {
-        width: 100%;
-        padding: 16px;
-        order: 2;
-      }
-
-      .modal-left {
-        order: 1;
-      }
-
-      .modal-left img {
-        max-height: 60vh;
-      }
-    }
-
-    /* ---- RWD: Buttons ---- */
-    @media (max-width: 500px) {
-      .btn {
-        padding: 6px 10px;
-        font-size: 14px;
-      }
-
-      .search {
-        padding: 6px 10px;
-      }
-    }
-
-    /* ---- Footer ---- */
-    @media (max-width: 768px) {
-      footer {
-        font-size: 12px;
-        margin-top: 20px;
-        margin-bottom: 20px;
-      }
-    }
-
-    /* ---- RWD: Modal Buttons Fix (手機) ---- */
-    @media (max-width: 768px) {
-      .modal-right {
-        padding: 14px;
-      }
-
-      .modal-right > div:first-child {
-        flex-wrap: wrap;
-        gap: 10px;
-        justify-content: center; /* 讓整個按鈕區置中 */
-      }
-
-      .search {
-        padding: 6px 10px;
-      }
-
-      /* ---- 修正：避免按鈕溢出畫面 ---- */
-      #closeBtn,
-      #downloadBtn {
-        padding: 6px 6px;    /* 原本 6px 50px 會直接溢出 */
-        font-size: 14px;
-        width: auto;
-        white-space: nowrap;
-        margin: 0 auto;          /* 按鈕本身置中 */
-        display: inline-block;   /* 讓 auto margin 生效 */
-      }
-    }
-    /* --- 讓 數字 + 關閉 + 下載 水平置中 --- */
-    .modal-header-row {
-      display: flex;
-      justify-content: center;/* ⭐置中 */
-      align-items: center;
-      gap: 14px;/* 數字與按鈕間距 */
-      width: 100%;
-      text-align: center;
-    }
-
-    /* --- 讓兩顆按鈕更靠近（縮小間距） --- */
-    .modal-header-row .meta {
-      display: flex;
-      gap: 0px;/* ⭐按鈕間距縮小 */
-      align-items: center;
-      justify-content: center;
-    }
-    /* ---- 🔥 強制：橫向瀏覽（landscape）時採用左右佈局 ---- */
-    @media screen and (orientation: landscape) {
-
-      .modal-content {
-        flex-direction: row !important;
-        max-height: 90vh;
-      }
-
-      .modal-left img {
-        max-height: 90vh;
-        width: auto;
-        object-fit: contain;
-      }
-
-      .modal-right {
-        width: 360px !important;
-        max-height: 90vh;
-        overflow-y: auto;
-        padding: 18px;
-      }
-      
-      /* --- 修正：左右切換按鈕固定在圖片中央，不被圖片擠壓 --- */
-      .modal-left {
-        position: relative;
-      }
-
-      #prevBtn, #nextBtn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 20;          /* 在圖片之上 */
-        background: rgba(0,0,0,0.35);
-        padding: 12px 14px;
-        border-radius: 8px;
-        backdrop-filter: blur(6px);
-        color: #00FFFF;
-      }
-
-      #prevBtn {
-        left: 3px;           /* 不會跑出螢幕 */
-      }
-
-      #nextBtn {
-        right: 3px;
-      }
-    }
-    
-
-    /* 手機版讓按鈕更大、點擊更容易 */
-    @media (max-width: 768px) {
-      #prevBtn, #nextBtn {
-        /*padding: 16px 18px;*/
-        font-size: 8px;
-      }
-    }
-    /* --- 修正：loading 與左右箭頭避免重疊 --- */
     #modalLoading {
-      position: absolute;
+      position:absolute;
       top: 50%;
       left: 50%;
       transform: translate(-50%, -50%);
-      z-index: 30; /* 高於箭頭，且不影響位置 */
+      z-index: 30;
       pointer-events: none;
       background: rgba(0,0,0,0.45);
       padding: 12px 18px;
       border-radius: 10px;
       backdrop-filter: blur(6px);
+      color: #ccc;
+      font-size: 16px;
+      display:none;
     }
   </style>
 </head>
+
 <body>
   <div class="wrap">
     <header>
@@ -330,51 +112,57 @@
 
       <div class="controls">
         <div class="search">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none">
+            <path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"></path>
+            <circle cx="11" cy="11" r="6" stroke="currentColor"
+                    stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round"></circle>
+          </svg>
           <input id="searchInput" placeholder="搜尋（地點/詞）..." />
         </div>
-        <button class="btn" id="shuffleBtn" title="隨機排列">隨機</button>
-        <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>
-        <!--<button class="btn" id="slideshowBtn" title="投影片模式">投影片播放</button>-->
+
+        <button class="btn" id="shuffleBtn">隨機</button>
+        <button class="btn" id="favoritesBtn">最愛</button>
       </div>
     </header>
 
     <div class="info-row">
-      <div class="tag">共 <span id="totalCount">0</span> 張</div>
+      <div>共 <span id="totalCount">0</span> 張</div>
       <div class="muted">|</div>
       <div class="muted">點擊圖片可看清晰圖</div>
     </div>
 
     <main>
-      <section id="gallery" class="gallery" aria-live="polite"></section>
+      <section id="gallery" class="gallery"></section>
     </main>
 
+    <!-- Modal -->
     <div id="modal" class="modal" aria-hidden="true">
-      <div class="modal-content" role="dialog" aria-label="圖片預覽">
+      <div class="modal-content">
         <div class="modal-left">
-          <button class="icon-btn" id="prevBtn" title="上一張">◀</button>
+          <button class="icon-btn" id="prevBtn">◀</button>
           <img id="modalImg" src="" alt="" />
-          <div id="modalLoading"
-             style="position:absolute; color:#ccc; font-size:16px; display:none;">
-              讀取中…
-          </div>
-          <button class="icon-btn" id="nextBtn" title="下一張">▶</button>
+          <div id="modalLoading">讀取中…</div>
+          <button class="icon-btn" id="nextBtn">▶</button>
         </div>
+
         <aside class="modal-right">
-          <div class="modal-header-row">
-            <div class="muted" id="modalIndex">0 / 0</div>
+          <div class="modal-header-row" style="display:flex;justify-content:center;align-items:center;gap:12px;">
+            <div id="modalIndex" class="muted">0 / 0</div>
             <div class="meta">
               <button class="btn" id="closeBtn">關閉</button>
               <button class="btn" id="downloadBtn">下載</button>
             </div>
           </div>
+
           <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div>
-          <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
+          <div id="modalDesc" class="muted" style="font-size:14px">描述文字</div>
+
           <div style="margin-top:12px">
             <button class="btn" id="toggleFav">加入最愛</button>
             <button class="btn" id="openFull">檢視原始尺寸</button>
           </div>
-          <div style="margin-top:6px" class="muted">瀏覽：左右滑動或鍵盤左右可切換照片</div>
         </aside>
       </div>
     </div>
@@ -384,368 +172,137 @@
 
   <div id="loadingBubble" class="loading-bubble" style="display:none">照片載入中…</div>
 
+  <!-- ★★★ JS 會放在下一段 ★★★ -->
   <script>
-    /* CONFIG */
-    const PHOTOS_PER_PAGE = 20;
-    const MAX_INDEX = 9999;        // upper safety bound to avoid infinite loop on weird setups
-    const MAX_MISSES = 30;         // 連續多少張找不到就停止（可改）
-    const THUMB_DIR = 'photo/thumb';
-    const FULL_DIR = 'photo/full';
+/* ------------------------------
+    設定區
+------------------------------ */
+const TOTAL_PHOTOS = 300;    // 你有幾張照片就填幾張
+const PHOTOS_PER_LOAD = 20;  // 每次 infinite scroll 載入幾張
 
-    /* STATE */
-    const items = [];              // 已發現的 item
-    let discoveryDone = false;
+let loadedPhotos = 0;
+let photos = [];
+let currentIndex = 0;
 
-    /* 檢查圖片是否存在（使用 Image 事件，避免 CORS fetch 問題） */
-    function checkImageExists(url, timeout = 8000) {
-      return new Promise(resolve => {
-        const img = new Image();
-        let done = false;
-        const timer = setTimeout(() => { if (!done) { done = true; resolve(false); img.src = ''; } }, timeout);
-        img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(true); } };
-        img.onerror = () => { if (!done) { done = true; clearTimeout(timer); resolve(false); } };
-        img.decoding = 'async';
-        img.src = url;
-      });
-    }
+/* ------------------------------
+    初始化：建立圖片清單（檢查 JPG → PNG）
+------------------------------ */
+async function buildPhotoList() {
+  for (let i = 1; i <= TOTAL_PHOTOS; i++) {
+    const name = `photo${i}`;
+    const jpg = `photos/full/${name}.jpg`;
+    const png = `photos/full/${name}.png`;
 
-    /* 嘗試找出 index 的可用變體（不補零優先，之後補零3位） */
-    async function findVariantForIndex(index) {
-      const noPad = String(index);           // photo1
-      const pad3 = String(index).padStart(3, '0'); // photo001
-      const candidates = [
-        {thumb:`${THUMB_DIR}/photo${noPad}.jpg`, full:`${FULL_DIR}/photo${noPad}.jpg`, ext:'jpg', namePart:noPad},
-        {thumb:`${THUMB_DIR}/photo${noPad}.png`, full:`${FULL_DIR}/photo${noPad}.png`, ext:'png', namePart:noPad},
-        {thumb:`${THUMB_DIR}/photo${pad3}.jpg`, full:`${FULL_DIR}/photo${pad3}.jpg`, ext:'jpg', namePart:pad3},
-        {thumb:`${THUMB_DIR}/photo${pad3}.png`, full:`${FULL_DIR}/photo${pad3}.png`, ext:'png', namePart:pad3},
-      ];
+    const resolved = await checkImage(jpg) ? jpg : png;
 
-      for (const c of candidates) {
-        if (await checkImageExists(c.thumb)) {
-          // optional: could check full exists too; assume convention holds
-          return c;
-        }
-      }
-      return null;
-    }
-
-    /* 解析檔名取得標題（photo1_海邊.jpg -> 海邊） */
-    function extractTitleFromFilename(filename) {
-      // filename: photo1_海邊.jpg or photo001-Beach.jpg etc.
-      const base = filename.split('/').pop();
-      const name = base.replace(/\.(jpg|jpeg|png|gif)$/i,'');
-      // possible separators: _, -, space
-      const parts = name.split(/[_\- ]+/);
-      if (parts.length >= 2) {
-        // drop the photoN prefix, join rest as title
-        return parts.slice(1).join(' ');
-      }
-      // fallback: return photo number or full name
-      return name;
-    }
-
-    /* UI: append single card immediately (帶淡入效果) */
-    function appendCard(item, indexInItems) {
-      const gallery = document.getElementById('gallery');
-
-      const card = document.createElement('figure');
-      card.className = 'card';
-      card.dataset.index = indexInItems;
-      card.dataset.id = item.id;
-
-      const img = document.createElement('img');
-      img.className = 'thumb';
-      img.alt = item.title;
-      img.loading = 'lazy';
-      img.src = item.thumb;
-      img.dataset.full = item.full;
-
-      // 當圖片真正載入時，加入 loaded 類別觸發淡入
-      img.addEventListener('load', () => img.classList.add('loaded'));
-      img.addEventListener('error', () => card.remove());
-
-      const cap = document.createElement('figcaption');
-      cap.className = 'caption';
-      cap.innerHTML = `<div style="font-weight:600">${item.title}</div><div style="font-size:12px;color:var(--muted)">${item.desc}</div>`;
-
-      const heart = document.createElement('div');
-      heart.className = 'heart';
-      const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
-      heart.innerHTML = favs.includes(item.id) ? '♥' : '♡';
-      if (favs.includes(item.id)) heart.classList.add('active');
-      heart.title = '加入最愛';
-      heart.addEventListener('click', e => {
-        e.stopPropagation();
-        toggleFavFor(item.id, heart);
-      });
-
-      card.append(img, cap, heart);
-      card.addEventListener('click', () => openModal(card.dataset.index));
-      gallery.appendChild(card);
-    }
-
-    function updateTotalCount() {
-      document.getElementById('totalCount').textContent = items.length;
-    }
-
-    function toggleFavFor(id, el) {
-      const raw = localStorage.getItem('wedding_favs')||'[]';
-      const arr = JSON.parse(raw);
-      const idx = arr.indexOf(id);
-      if (idx >= 0) { arr.splice(idx,1); el.classList.remove('active'); el.innerHTML='♡'; }
-      else { arr.push(id); el.classList.add('active'); el.innerHTML='♥'; }
-      localStorage.setItem('wedding_favs', JSON.stringify(arr));
-    }
-
-    /* Discovery (incremental): 從1開始，一直檢查到連續 MAX_MISSES 找不到則停止 */
-    async function discoverImagesIncrementally() {
-      document.getElementById('loadingBubble').style.display = 'block';
-      let misses = 0;
-      let i = 1;
-      while (i <= MAX_INDEX) {
-        const v = await findVariantForIndex(i);
-        if (v) {
-          misses = 0; // reset consecutive miss counter
-          const title = extractTitleFromFilename(v.thumb);
-          const item = {
-            id: `${v.ext}-${v.namePart}`,
-            title: title,
-            desc: `編號 ${v.namePart}`,
-            thumb: v.thumb,
-            full: v.full,
-            tags: [] // 可自行加入
-          };
-          items.push(item);
-          // 立即 append（使用 items.length-1 做 index）
-          appendCard(item, items.length - 1);
-          updateTotalCount();
-        } else {
-          misses++;
-          // 若連續 misses 達上限，停止
-          if (misses >= MAX_MISSES) break;
-        }
-        i++;
-        // micro-yield to keep UI responsive
-        await new Promise(r => setTimeout(r, 0));
-      }
-      discoveryDone = true;
-      // hide loading after短延遲
-      setTimeout(()=>{ document.getElementById('loadingBubble').style.display='none'; }, 300);
-    }
-
-    /* Paging: render 'next page' from already discovered items */
-    function renderNextPage() {
-      const gallery = document.getElementById('gallery');
-      const current = gallery.querySelectorAll('.card').length;
-      const end = Math.min(items.length, current + PHOTOS_PER_PAGE);
-      for (let i = current; i < end; i++) {
-        appendCard(items[i], i);
-      }
-    }
-
-    /* Modal & controls (basic) */
-    function openModal(idxStr) {
-      const idx = Number(idxStr);
-      if (isNaN(idx) || !items[idx]) return;
-      const it = items[idx];
-      const modal = document.getElementById('modal');
-      const modalImg = document.getElementById('modalImg');
-      const modalIndex = document.getElementById('modalIndex');
-      const modalTitle = document.getElementById('modalTitle');
-      const modalDesc = document.getElementById('modalDesc');
-      const downloadBtn = document.getElementById('downloadBtn');
-      const toggleFav = document.getElementById('toggleFav');
-      const openFull = document.getElementById('openFull');
-
-      modalImg.src = it.full;
-      modalTitle.textContent = it.title;
-      modalDesc.textContent = it.desc;
-      modalIndex.textContent = `${idx+1} / ${items.length}`;
-      downloadBtn.onclick = () => { const a=document.createElement('a'); a.href=it.full; a.download=''; a.click(); };
-      toggleFav.onclick = () => {
-        toggleFavFor(it.id, document.querySelector(`figure[data-id="${it.id}"] .heart`));
-        toggleFav.textContent = (JSON.parse(localStorage.getItem('wedding_favs')||'[]').includes(it.id)) ? '從最愛移除' : '加入最愛';
-      };
-      openFull.onclick = () => window.open(it.full, '_blank');
-
-      modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-    }
-    function closeModal() { const modal=document.getElementById('modal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.getElementById('modalImg').src=''; }
-    function modalNext() {
-      const idxText = document.getElementById('modalIndex').textContent.split(' / ')[0];
-      let idx = Number(idxText)-1; idx = (idx+1) % items.length; openModal(String(idx));
-    }
-    function modalPrev() {
-      const idxText = document.getElementById('modalIndex').textContent.split(' / ')[0];
-      let idx = Number(idxText)-1; idx = (idx-1+items.length) % items.length; openModal(String(idx));
-    }
-
-    /* Infinite scroll handler: when near bottom, render next page; if no more discovered yet, show loading */
-    let scrollTick = false;
-    window.addEventListener('scroll', () => {
-      if (scrollTick) return;
-      scrollTick = true;
-      requestAnimationFrame(() => {
-        const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-        if (scrollTop + clientHeight >= scrollHeight - 200) {
-          const displayed = document.querySelectorAll('#gallery .card').length;
-          if (displayed < items.length) renderNextPage();
-          else if (!discoveryDone) document.getElementById('loadingBubble').style.display = 'block';
-        }
-        scrollTick = false;
-      });
+    photos.push({
+      id: i,
+      src: resolved,
+      thumb: resolved.replace("/full/", "/thumb/")
     });
+  }
 
-    /* UI Bindings on DOMContentLoaded */
-    document.addEventListener('DOMContentLoaded', () => {
-      const searchInput = document.getElementById('searchInput');
-      const shuffleBtn = document.getElementById('shuffleBtn');
-      const favoritesBtn = document.getElementById('favoritesBtn');
-      const slideshowBtn = document.getElementById('slideshowBtn');
-      const closeBtn = document.getElementById('closeBtn');
-      const prevBtn = document.getElementById('prevBtn');
-      const nextBtn = document.getElementById('nextBtn');
-      const modal = document.getElementById('modal');
+  loadMorePhotos();
+}
 
-      // basic search (on discovered items only)
-      searchInput.addEventListener('input', (e) => {
-        const q = e.target.value.trim().toLowerCase();
-        const gallery = document.getElementById('gallery');
-        gallery.innerHTML = '';
-        if (!q) {
-          // render first page of discovered items
-          const count = Math.min(items.length, PHOTOS_PER_PAGE);
-          for (let i=0;i<count;i++) appendCard(items[i], i);
-        } else {
-          const matched = items.filter(it => (it.title + ' ' + it.desc + ' ' + (it.tags||[]).join(' ')).toLowerCase().includes(q));
-          matched.forEach(it => appendCard(it, items.indexOf(it)));
-        }
-      });
+/* ------------------------------
+    檢查圖片是否存在
+------------------------------ */
+function checkImage(url) {
+  return fetch(url, { method: "HEAD" })
+    .then((res) => res.ok)
+    .catch(() => false);
+}
 
-      // shuffle (simple Fisher-Yates)
-      shuffleBtn.addEventListener('click', () => {
-        for (let i = items.length -1; i>0; i--) {
-          const j = Math.floor(Math.random()*(i+1)); [items[i], items[j]] = [items[j], items[i]];
-        }
-        const gallery = document.getElementById('gallery'); gallery.innerHTML='';
-        const count = Math.min(items.length, PHOTOS_PER_PAGE);
-        for (let i=0;i<count;i++) appendCard(items[i], i);
-      });
+/* ------------------------------
+    Infinite Scroll 載入圖片
+------------------------------ */
+function loadMorePhotos() {
+  const container = document.getElementById("gallery");
+  const slice = photos.slice(loadedPhotos, loadedPhotos + PHOTOS_PER_LOAD);
 
-      favoritesBtn.addEventListener('click', () => {
-        const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
-        const matched = items.filter(it => favs.includes(it.id));
-        const gallery = document.getElementById('gallery'); gallery.innerHTML='';
-        matched.forEach(it => appendCard(it, items.indexOf(it)));
-      });
+  slice.forEach((p, index) => {
+    const card = document.createElement("div");
+    card.className = "photo-card";
+    card.innerHTML = `
+      <img src="${p.thumb}" loading="lazy" onclick="openModal(${loadedPhotos + index})">
+    `;
+    container.appendChild(card);
+  });
 
-      closeBtn.onclick = closeModal;
-      prevBtn.onclick = modalPrev;
-      nextBtn.onclick = modalNext;
-      modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+  loadedPhotos += slice.length;
+}
 
-      document.addEventListener('keydown', (e) => {
-        if (modal.classList.contains('open')) {
-          if (e.key === 'ArrowRight') modalNext();
-          if (e.key === 'ArrowLeft') modalPrev();
-          if (e.key === 'Escape') closeModal();
-        }
-      });
+/* ------------------------------
+    滾到底部自動載入
+------------------------------ */
+window.addEventListener("scroll", () => {
+  if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 300) {
+    loadMorePhotos();
+  }
+});
 
-      // Start discovery but don't wait for finish — discovered images will append as they are found
-      discoverImagesIncrementally();
-    });
-    /* --- Swipe 手勢支援（手機可左右滑動切換照片） --- */
-    let touchStartX = 0;
-    let touchEndX = 0;
+/* ------------------------------
+    Modal：開啟
+------------------------------ */
+function openModal(index) {
+  currentIndex = index;
 
-    const modalLeft = document.querySelector(".modal-left");
+  const modal = document.getElementById("photoModal");
+  const modalImg = document.getElementById("modalImg");
+  const loading = document.getElementById("modalLoading");
 
-    modalLeft.addEventListener("touchstart", function (e) {
-      touchStartX = e.changedTouches[0].screenX;
-    }, { passive: true });
+  modal.style.display = "flex";
+  modal.classList.add("show");
 
-    modalLeft.addEventListener("touchend", function (e) {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipeGesture();
-    }, { passive: true });
+  loading.style.display = "block";
+  modalImg.style.opacity = "0";
 
-    function handleSwipeGesture() {
-      const deltaX = touchEndX - touchStartX;
+  modalImg.onload = () => {
+    loading.style.display = "none";
+    modalImg.style.opacity = "1";
+  };
 
-      // 設定滑動觸發的最小距離（避免誤觸）
-      const threshold = 50;
+  modalImg.src = photos[index].src;
+}
 
-      if (Math.abs(deltaX) < threshold) return;
+/* ------------------------------
+    Modal：左右切換
+------------------------------ */
+function showNext() {
+  currentIndex = (currentIndex + 1) % photos.length;
+  openModal(currentIndex);
+}
 
-      if (deltaX < 0) {
-        // 往左滑（下一張）
-        document.getElementById("nextBtn").click();
-      } else {
-        // 往右滑（上一張）
-        document.getElementById("prevBtn").click();
-      }
-    }
-    /* ---- Modal 切換顯示圖片 (加入載入中提示) ---- */
-    function showPhotoInModal(index) {
-      const item = items[index];
-      if (!item) return;
+function showPrev() {
+  currentIndex = (currentIndex - 1 + photos.length) % photos.length;
+  openModal(currentIndex);
+}
 
-      const modalImg = document.getElementById("modalImg");
-      const modalLoading = document.getElementById("modalLoading");
+/* ------------------------------
+    Modal：點背景關閉
+------------------------------ */
+document.getElementById("photoModal").addEventListener("click", (e) => {
+  if (e.target.id === "photoModal") {
+    closeModal();
+  }
+});
 
-      // 隱藏圖片、顯示 loading
-      modalImg.style.display = "none";
-      modalLoading.style.display = "block";
-      modalLoading.textContent = "讀取中…";
+/* ------------------------------
+    Modal：關閉
+------------------------------ */
+function closeModal() {
+  const modal = document.getElementById("photoModal");
+  modal.classList.remove("show");
+  setTimeout(() => (modal.style.display = "none"), 200);
+}
 
-      // 更新右側資訊（標題 / 敘述 / 目前第幾張）
-      document.getElementById("modalIndex").textContent = `${index + 1} / ${items.length}`;
-      document.getElementById("modalTitle").textContent = item.title || "無標題";
-      document.getElementById("modalDesc").textContent = item.desc || "";
+/* ------------------------------
+    初始化執行
+------------------------------ */
+buildPhotoList();
+</script>
 
-      // 載入新圖片前，先清空 src 避免殘影造成跳動
-      modalImg.src = "";
-      modalImg.decoding = "async";
 
-      const imgLoader = new Image();
-      imgLoader.decoding = "async";
-      imgLoader.src = item.full;
-
-      imgLoader.onload = () => {
-        modalImg.src = item.full;
-
-        // 載入成功 → 顯示圖片、隱藏 loading
-        modalLoading.style.display = "none";
-        modalImg.style.display = "block";
-      };
-
-      imgLoader.onerror = () => {
-        modalLoading.textContent = "載入失敗";
-      };
-    }
-
-    function openModal(startIndex) {
-      currentIndex = startIndex;
-      document.getElementById("modal").classList.add("open");
-      showPhotoInModal(currentIndex);
-    }
-
-    document.getElementById("prevBtn").onclick = () => {
-      if (currentIndex > 0) {
-        currentIndex--;
-        showPhotoInModal(currentIndex);
-      }
-    };
-
-    document.getElementById("nextBtn").onclick = () => {
-      if (currentIndex < items.length - 1) {
-        currentIndex++;
-        showPhotoInModal(currentIndex);
-      }
-    };
-    
-
-  </script>
 </body>
 </html>
