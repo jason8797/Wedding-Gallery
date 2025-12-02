@@ -268,6 +268,50 @@
         padding: 18px;
       }
     }
+    /* --- 修正：左右切換按鈕固定在圖片中央，不被圖片擠壓 --- */
+    .modal-left {
+      position: relative;
+    }
+
+    #prevBtn, #nextBtn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 20;          /* 在圖片之上 */
+      background: rgba(0,0,0,0.35);
+      padding: 12px 14px;
+      border-radius: 8px;
+      backdrop-filter: blur(6px);
+    }
+
+    #prevBtn {
+      left: 10px;           /* 不會跑出螢幕 */
+    }
+
+    #nextBtn {
+      right: 10px;
+    }
+
+    /* 手機版讓按鈕更大、點擊更容易 */
+    @media (max-width: 768px) {
+      #prevBtn, #nextBtn {
+        padding: 16px 18px;
+        font-size: 20px;
+      }
+    }
+    /* --- 修正：loading 與左右箭頭避免重疊 --- */
+    #modalLoading {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 30; /* 高於箭頭，且不影響位置 */
+      pointer-events: none;
+      background: rgba(0,0,0,0.45);
+      padding: 12px 18px;
+      border-radius: 10px;
+      backdrop-filter: blur(6px);
+    }
   </style>
 </head>
 <body>
