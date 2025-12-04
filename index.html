@@ -412,8 +412,8 @@
         let index = 1;
 
         while (index <= maxImages) {
-          let jpg = `/photo/photo${index}.jpg`;
-          let png = `/photo/photo${index}.png`;
+          let jpg = `/photo/full/photo${index}.jpg`;
+          let png = `/photo/full/photo${index}.png`;
 
           if (await imageExists(jpg)) {
             images.push(jpg);
