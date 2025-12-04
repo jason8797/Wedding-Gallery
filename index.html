@@ -385,134 +385,95 @@
   <div id="loadingBubble" class="loading-bubble" style="display:none">照片載入中…</div>
 
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const gallery = document.getElementById("gallery");
-      const modal = document.getElementById("modal");
-      const modalImg = document.getElementById("modalImg");
-      const closeBtn = document.getElementById("closeBtn");
-      const downloadBtn = document.getElementById("downloadBtn");
-      const modalIndexText = document.getElementById("modalIndex");
-      const spinner = document.getElementById("spinner");
+    /* 新版：自動掃描 photo/thumb/ 全部照片 */
 
-      let maxImages = 9999;          // 可自行調整最大搜尋圖片範圍
-      let images = [];
-      let currentIndex = 0;
+const THUMB_DIR = "photo/thumb/";
+const FULL_DIR  = "photo/full/";
+const gallery   = document.getElementById("gallery");
+const totalCount = document.getElementById("totalCount");
 
-      /* -1. 自動偵測圖片（純編號）- */
-      async function imageExists(url) {
-        try {
-          const res = await fetch(url, { method: "HEAD" });
-          return res.ok;
-        } catch {
-          return false;
-        }
-      }
+let items = [];
 
-      async function loadImages() {
-        let index = 1;
+/* 解析目錄 HTML，抓出 .jpg/.png 檔案 */
+async function listImagesFromFolder(folderUrl) {
+  const res = await fetch(folderUrl);
+  const text = await res.text();
 
-        while (index <= maxImages) {
-          let jpg = `/photo/full/photo${index}.jpg`;
-          let png = `/photo/full/photo${index}.png`;
+  // 解析 <a href="xxx.jpg">xxx.jpg</a>
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(text, "text/html");
 
-          if (await imageExists(jpg)) {
-            images.push(jpg);
-          } else if (await imageExists(png)) {
-            images.push(png);
-          } else {
-            break;
-          }
-          index++;
-        }
+  const links = [...doc.querySelectorAll("a")];
 
-        renderGallery();
-      }
+  return links
+    .map(a => a.getAttribute("href"))
+    .filter(name => name && (name.toLowerCase().endsWith(".jpg") || name.toLowerCase().endsWith(".png")));
+}
 
-  /* -2. 產生縮圖- */
-      function renderGallery() {
-        gallery.innerHTML = "";
+/* 主程序：掃描縮圖 & 建立清單 */
+async function loadImages() {
+  document.getElementById("loadingBubble").style.display = "block";
 
-        images.forEach((src, idx) => {
-          const div = document.createElement("div");
-          div.className = "photo-card";
-          div.innerHTML = `
-            <img src="${src}" data-index="${idx}" loading="lazy">
-            <span>${idx + 1}</span>
-          `;
-          gallery.appendChild(div);
-        });
-      }
+  try {
+    const files = await listImagesFromFolder(THUMB_DIR);
 
-  /* -3. 打開 Modal- */
-      function openModal(index) {
-        currentIndex = index;
-        modal.style.display = "flex";
-        spinner.style.display = "block";
+    items = files.map(filename => ({
+      thumb: THUMB_DIR + filename,
+      full: FULL_DIR + filename,
+      title: filename,
+      desc: ""
+    }));
 
-        const img = new Image();
-        img.onload = () => {
-          modalImg.src = img.src;
-          modalIndexText.textContent = `${currentIndex + 1} / ${images.length}`;
-          spinner.style.display = "none";
-        };
-        img.src = images[currentIndex];
+    totalCount.textContent = items.length;
+    renderGallery(items);
+  } catch (e) {
+    console.error("讀取失敗：", e);
+  }
 
-        downloadBtn.href = images[currentIndex];
-      }
+  document.getElementById("loadingBubble").style.display = "none";
+}
 
-      gallery.addEventListener("click", function (e) {
-        if (e.target.tagName === "IMG") {
-          openModal(parseInt(e.target.dataset.index));
-        }
-      });
+/* 把照片渲染到畫面 */
+function renderGallery(list) {
+  gallery.innerHTML = "";
 
-  /* -4. Modal 控制- */
-      closeBtn.addEventListener("click", () => (modal.style.display = "none"));
+  list.forEach((item, index) => {
+    const card = document.createElement("div");
+    card.className = "card";
 
-      function showNext() {
-        if (currentIndex < images.length - 1) {
-          openModal(currentIndex + 1);
-        }
-      }
+    const img = document.createElement("img");
+    img.className = "thumb";
+    img.dataset.index = index;
+    img.src = item.thumb;
 
-      function showPrev() {
-        if (currentIndex > 0) {
-          openModal(currentIndex - 1);
-        }
-      }
+    img.onload = () => img.classList.add("loaded");
 
-      document.getElementById("nextBtn").addEventListener("click", showNext);
-      document.getElementById("prevBtn").addEventListener("click", showPrev);
+    card.appendChild(img);
+    gallery.appendChild(card);
 
-  /* -5. 鍵盤操作- */
-      document.addEventListener("keydown", function (e) {
-        if (modal.style.display !== "flex") return;
+    img.addEventListener("click", () => openModal(index));
+  });
+}
 
-        if (e.key === "ArrowRight") showNext();
-        if (e.key === "ArrowLeft") showPrev();
-        if (e.key === "Escape") modal.style.display = "none";
-      });
+/* Modal（你原本的程式可保留） */
+function openModal(i) {
+  const modal = document.getElementById("modal");
+  const modalImg = document.getElementById("modalImg");
 
-  /* -6. 手勢滑動 (手機)- */
-      let startX = 0;
+  modalImg.src = items[i].full;
+  document.getElementById("modalIndex").textContent = `${i + 1} / ${items.length}`;
+  document.getElementById("modalTitle").textContent = items[i].title;
 
-      modal.addEventListener("touchstart", (e) => {
-        startX = e.touches[0].clientX;
-      });
+  modal.classList.add("open");
+}
 
-      modal.addEventListener("touchend", (e) => {
-        let endX = e.changedTouches[0].clientX;
-        let diff = endX - startX;
+document.getElementById("closeBtn").addEventListener("click", () => {
+  document.getElementById("modal").classList.remove("open");
+});
 
-        if (Math.abs(diff) > 50) {
-          if (diff < 0) showNext();
-          else showPrev();
-        }
-      });
+/* 初始化 */
+loadImages();
 
-  /* -開始執行（載入圖片）- */
-      loadImages();
-    });
     </script>
 
 </body>
