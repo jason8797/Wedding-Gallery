@@ -386,128 +386,343 @@
   <div id="loadingBubble" class="loading-bubble" style="display:none">照片載入中…</div>
 
   <script>
-// -------------------------------
-//          全域變數
-// -------------------------------
-let images = [];          // 所有照片資料（你原本已有）
-let currentIndex = 0;     // 當前瀏覽的圖片
-let favorites = JSON.parse(localStorage.getItem("favorites") || "[]");
+/* CONFIG */
+const PHOTOS_PER_PAGE = 20;
+const MAX_INDEX = 9999;
+const MAX_MISSES = 30;
+const THUMB_DIR = 'photo/thumb';
+const FULL_DIR = 'photo/full';
 
-// DOM 元素
-const modal = document.getElementById("photoModal");
-const modalImg = document.getElementById("modalImg");
-const toggleFav = document.getElementById("toggleFav");
-const closeModalBtn = document.getElementById("closeModalBtn");
+/* STATE */
+const items = [];
+let discoveryDone = false;
+let currentIndex = 0;
 
-// -------------------------------
-//      開啟 Modal（你原本已有的功能）
-// -------------------------------
-function openModal(index) {
-    currentIndex = index;
-    modal.style.display = "flex";
-    modalImg.src = images[currentIndex].src;
-
-    updateFavButton();
+/* ----------------------------------------------------------
+   工具：檢查圖片是否存在
+---------------------------------------------------------- */
+function checkImageExists(url, timeout = 8000) {
+  return new Promise(resolve => {
+    const img = new Image();
+    let done = false;
+    const timer = setTimeout(() => { if (!done) { done = true; resolve(false); img.src = ''; } }, timeout);
+    img.onload = () => { if (!done) { done = true; clearTimeout(timer); resolve(true); } };
+    img.onerror = () => { if (!done) { done = true; clearTimeout(timer); resolve(false); } };
+    img.decoding = 'async';
+    img.src = url;
+  });
 }
 
-// -------------------------------
-//      更新「加入最愛」按鈕文字
-// -------------------------------
-function updateFavButton() {
-    const filename = images[currentIndex].src;
-    const exists = favorites.includes(filename);
-    toggleFav.textContent = exists ? "從最愛移除" : "加入最愛";
+/* ----------------------------------------------------------
+   嘗試找出圖片變體（photo1, photo001 及 jpg/png）
+---------------------------------------------------------- */
+async function findVariantForIndex(index) {
+  const noPad = String(index);
+  const pad3 = noPad.padStart(3, '0');
+
+  const candidates = [
+    {thumb:`${THUMB_DIR}/photo${noPad}.jpg`, full:`${FULL_DIR}/photo${noPad}.jpg`, ext:'jpg', namePart:noPad},
+    {thumb:`${THUMB_DIR}/photo${noPad}.png`, full:`${FULL_DIR}/photo${noPad}.png`, ext:'png', namePart:noPad},
+    {thumb:`${THUMB_DIR}/photo${pad3}.jpg`, full:`${FULL_DIR}/photo${pad3}.jpg`, ext:'jpg', namePart:pad3},
+    {thumb:`${THUMB_DIR}/photo${pad3}.png`, full:`${FULL_DIR}/photo${pad3}.png`, ext:'png', namePart:pad3},
+  ];
+
+  for (const c of candidates) {
+    if (await checkImageExists(c.thumb)) return c;
+  }
+  return null;
 }
 
-// -------------------------------
-//      更新圖片卡片的小愛心（如果有）
-// -------------------------------
-function updateHeartIcon(index) {
-    const cardHeart = document.querySelector(`[data-index="${index}"] .heart`);
-    if (cardHeart) {
-        const filename = images[index].src;
-        cardHeart.classList.toggle("active", favorites.includes(filename));
-    }
+/* ----------------------------------------------------------
+   從檔名取標題
+---------------------------------------------------------- */
+function extractTitleFromFilename(filename) {
+  const base = filename.split('/').pop();
+  const name = base.replace(/\.(jpg|jpeg|png|gif)$/i,'');
+  const parts = name.split(/[_\- ]+/);
+  if (parts.length >= 2) return parts.slice(1).join(' ');
+  return name;
 }
 
-// -------------------------------
-//      加入 / 移除最愛 切換
-// -------------------------------
-toggleFav.addEventListener("click", function () {
-    const filename = images[currentIndex].src;
-    const exists = favorites.includes(filename);
+/* ----------------------------------------------------------
+   卡片 UI
+---------------------------------------------------------- */
+function appendCard(item, indexInItems) {
+  const gallery = document.getElementById('gallery');
 
-    if (exists) {
-        // 移除最愛
-        favorites = favorites.filter(f => f !== filename);
-        this.textContent = "加入最愛";
+  const card = document.createElement('figure');
+  card.className = 'card';
+  card.dataset.index = indexInItems;
+  card.dataset.id = item.id;
+
+  const img = document.createElement('img');
+  img.className = 'thumb';
+  img.alt = item.title;
+  img.loading = 'lazy';
+  img.src = item.thumb;
+  img.dataset.full = item.full;
+  img.addEventListener('load', () => img.classList.add('loaded'));
+  img.addEventListener('error', () => card.remove());
+
+  const cap = document.createElement('figcaption');
+  cap.className = 'caption';
+  cap.innerHTML = `<div style="font-weight:600">${item.title}</div>
+                   <div style="font-size:12px;color:var(--muted)">${item.desc}</div>`;
+
+  const heart = document.createElement('div');
+  heart.className = 'heart';
+  const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
+  if (favs.includes(item.id)) heart.classList.add('active');
+  heart.innerHTML = favs.includes(item.id) ? '♥' : '♡';
+  heart.addEventListener('click', e => {
+    e.stopPropagation();
+    toggleFavFor(item.id, heart);
+  });
+
+  card.append(img, cap, heart);
+  card.addEventListener('click', () => openModal(Number(card.dataset.index)));
+  gallery.appendChild(card);
+}
+
+function updateTotalCount() {
+  document.getElementById('totalCount').textContent = items.length;
+}
+
+function toggleFavFor(id, el) {
+  const arr = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
+  const idx = arr.indexOf(id);
+  if (idx >= 0) { arr.splice(idx,1); el.classList.remove('active'); el.innerHTML='♡'; }
+  else { arr.push(id); el.classList.add('active'); el.innerHTML='♥'; }
+  localStorage.setItem('wedding_favs', JSON.stringify(arr));
+}
+
+/* ----------------------------------------------------------
+   自動尋找所有圖片（增量）
+---------------------------------------------------------- */
+async function discoverImagesIncrementally() {
+  document.getElementById('loadingBubble').style.display = 'block';
+  let misses = 0;
+  let i = 1;
+
+  while (i <= MAX_INDEX) {
+    const v = await findVariantForIndex(i);
+    if (v) {
+      misses = 0;
+      const title = extractTitleFromFilename(v.thumb);
+      const item = {
+        id: `${v.ext}-${v.namePart}`,
+        title,
+        desc: `編號 ${v.namePart}`,
+        thumb: v.thumb,
+        full: v.full,
+        tags: []
+      };
+      items.push(item);
+      appendCard(item, items.length - 1);
+      updateTotalCount();
     } else {
-        // 加入最愛
-        favorites.push(filename);
-        this.textContent = "從最愛移除";
+      misses++;
+      if (misses >= MAX_MISSES) break;
     }
+    i++;
+    await new Promise(r => setTimeout(r, 0)); 
+  }
 
-    // 儲存到 localStorage
-    localStorage.setItem("favorites", JSON.stringify(favorites));
-
-    // 同步更新小愛心圖示
-    updateHeartIcon(currentIndex);
-});
-
-// -------------------------------
-//      右上角關閉 Modal
-// -------------------------------
-document.getElementById("closeModal").addEventListener("click", () => {
-    modal.style.display = "none";
-});
-
-// -------------------------------
-//      下方按鈕「關閉 / 查看全部照片」
-// -------------------------------
-closeModalBtn.addEventListener("click", () => {
-    modal.style.display = "none";
-});
-
-// -------------------------------
-//      點背景區也能關閉
-// -------------------------------
-window.addEventListener("click", function (event) {
-    if (event.target === modal) {
-        modal.style.display = "none";
-    }
-});
-
-// -------------------------------
-//      左右切換圖片
-// -------------------------------
-function showPrev() {
-    currentIndex = (currentIndex - 1 + images.length) % images.length;
-    modalImg.src = images[currentIndex].src;
-    updateFavButton();
+  discoveryDone = true;
+  setTimeout(()=>{ document.getElementById('loadingBubble').style.display='none'; }, 300);
 }
 
-function showNext() {
-    currentIndex = (currentIndex + 1) % images.length;
-    modalImg.src = images[currentIndex].src;
-    updateFavButton();
+/* ----------------------------------------------------------
+   分頁功能
+---------------------------------------------------------- */
+function renderNextPage() {
+  const gallery = document.getElementById('gallery');
+  const current = gallery.querySelectorAll('.card').length;
+  const end = Math.min(items.length, current + PHOTOS_PER_PAGE);
+  for (let i = current; i < end; i++) appendCard(items[i], i);
 }
 
-// 綁定按鈕
-document.getElementById("prevBtn").addEventListener("click", showPrev);
-document.getElementById("nextBtn").addEventListener("click", showNext);
+/* ----------------------------------------------------------
+   Modal：載入圖片（含讀取中）
+---------------------------------------------------------- */
+function showPhotoInModal(index) {
+  const item = items[index];
+  if (!item) return;
 
-// -------------------------------
-//      鍵盤左右鍵支援
-// -------------------------------
-document.addEventListener("keydown", function (e) {
-    if (modal.style.display === "flex") {
-        if (e.key === "ArrowLeft") showPrev();
-        if (e.key === "ArrowRight") showNext();
-        if (e.key === "Escape") modal.style.display = "none";
+  const modalImg = document.getElementById("modalImg");
+  const modalLoading = document.getElementById("modalLoading");
+
+  modalImg.style.display = "none";
+  modalLoading.style.display = "block";
+  modalLoading.textContent = "讀取中…";
+
+  document.getElementById("modalIndex").textContent = `${index + 1} / ${items.length}`;
+  document.getElementById("modalTitle").textContent = item.title || "無標題";
+  document.getElementById("modalDesc").textContent = item.desc || "";
+
+  modalImg.src = "";
+  modalImg.decoding = "async";
+
+  const imgLoader = new Image();
+  imgLoader.decoding = "async";
+  imgLoader.src = item.full;
+
+  imgLoader.onload = () => {
+    modalImg.src = item.full;
+    modalLoading.style.display = "none";
+    modalImg.style.display = "block";
+  };
+
+  imgLoader.onerror = () => {
+    modalLoading.textContent = "載入失敗";
+  };
+
+  // 收藏按鈕狀態
+  const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
+  document.getElementById("toggleFav").textContent =
+    favs.includes(item.id) ? "從最愛移除" : "加入最愛";
+
+  // 下載
+  document.getElementById('downloadBtn').onclick = () => {
+    const a=document.createElement('a');
+    a.href=item.full;
+    a.download='';
+    a.click();
+  };
+
+  // 開啟原圖
+  document.getElementById('openFull').onclick = () => window.open(item.full, '_blank');
+}
+
+/* ----------------------------------------------------------
+   Modal 全整合
+---------------------------------------------------------- */
+function openModal(index) {
+  currentIndex = index;
+  document.getElementById("modal").classList.add("open");
+  showPhotoInModal(currentIndex);
+}
+function closeModal() {
+  const modal=document.getElementById('modal');
+  modal.classList.remove('open');
+  modal.setAttribute('aria-hidden','true');
+  document.getElementById('modalImg').src='';
+}
+
+/* ----------------------------------------------------------
+   切換前/後一張
+---------------------------------------------------------- */
+function switchPhoto(dir) {
+  currentIndex = (currentIndex + dir + items.length) % items.length;
+  showPhotoInModal(currentIndex);
+}
+
+/* ----------------------------------------------------------
+   手勢滑動
+---------------------------------------------------------- */
+let touchStartX = 0;
+let touchEndX = 0;
+const modalLeft = document.querySelector(".modal-left");
+
+modalLeft.addEventListener("touchstart", e => {
+  touchStartX = e.changedTouches[0].screenX;
+}, { passive: true });
+
+modalLeft.addEventListener("touchend", e => {
+  touchEndX = e.changedTouches[0].screenX;
+  const deltaX = touchEndX - touchStartX;
+  if (Math.abs(deltaX) >= 50) {
+    if (deltaX < 0) switchPhoto(1);
+    else switchPhoto(-1);
+  }
+}, { passive: true });
+
+/* ----------------------------------------------------------
+   Infinite Scroll
+---------------------------------------------------------- */
+let scrollTick = false;
+window.addEventListener('scroll', () => {
+  if (scrollTick) return;
+  scrollTick = true;
+
+  requestAnimationFrame(() => {
+    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+    if (scrollTop + clientHeight >= scrollHeight - 200) {
+      const displayed = document.querySelectorAll('#gallery .card').length;
+      if (displayed < items.length) renderNextPage();
+      else if (!discoveryDone) document.getElementById('loadingBubble').style.display = 'block';
     }
+    scrollTick = false;
+  });
+});
+
+/* ----------------------------------------------------------
+   DOMContentLoaded 初始化
+---------------------------------------------------------- */
+document.addEventListener('DOMContentLoaded', () => {
+  const searchInput = document.getElementById('searchInput');
+  const shuffleBtn = document.getElementById('shuffleBtn');
+  const favoritesBtn = document.getElementById('favoritesBtn');
+  const closeBtn = document.getElementById('closeBtn');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const modal = document.getElementById('modal');
+
+  /* 搜尋 */
+  searchInput.addEventListener('input', (e) => {
+    const q = e.target.value.trim().toLowerCase();
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = '';
+
+    if (!q) {
+      const count = Math.min(items.length, PHOTOS_PER_PAGE);
+      for (let i=0;i<count;i++) appendCard(items[i], i);
+    } else {
+      const matched = items.filter(it =>
+        (it.title + ' ' + it.desc + ' ' + (it.tags||[]).join(' ')).toLowerCase().includes(q)
+      );
+      matched.forEach(it => appendCard(it, items.indexOf(it)));
+    }
+  });
+
+  /* 亂數排序 */
+  shuffleBtn.addEventListener('click', () => {
+    for (let i = items.length -1; i>0; i--) {
+      const j = Math.floor(Math.random()*(i+1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML='';
+    const count = Math.min(items.length, PHOTOS_PER_PAGE);
+    for (let i=0;i<count;i++) appendCard(items[i], i);
+  });
+
+  /* 最愛 */
+  favoritesBtn.addEventListener('click', () => {
+    const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
+    const matched = items.filter(it => favs.includes(it.id));
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML='';
+    matched.forEach(it => appendCard(it, items.indexOf(it)));
+  });
+
+  /* Modal 控制 */
+  closeBtn.onclick = closeModal;
+  prevBtn.onclick = () => switchPhoto(-1);
+  nextBtn.onclick = () => switchPhoto(1);
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+  document.addEventListener('keydown', e => {
+    if (!modal.classList.contains('open')) return;
+    if (e.key === 'ArrowRight') switchPhoto(1);
+    if (e.key === 'ArrowLeft') switchPhoto(-1);
+    if (e.key === 'Escape') closeModal();
+  });
+
+  /* 開始尋找照片（增量） */
+  discoverImagesIncrementally();
 });
 </script>
-
 
 </body>
 </html>
