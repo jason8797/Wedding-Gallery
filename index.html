@@ -722,6 +722,37 @@ document.addEventListener('DOMContentLoaded', () => {
   /* 開始尋找照片（增量） */
   discoverImagesIncrementally();
 });
+
+/* ----------------------------------------------------------
+   收藏（modal 按鈕可用 + 即時更新所有愛心）
+---------------------------------------------------------- */
+function toggleFavoriteFromModal() {
+  const item = items[currentIndex];
+  const favs = JSON.parse(localStorage.getItem('wedding_favs') || '[]');
+
+  const idx = favs.indexOf(item.id);
+  if (idx >= 0) favs.splice(idx, 1);
+  else favs.push(item.id);
+
+  localStorage.setItem('wedding_favs', JSON.stringify(favs));
+
+  // 更新 modal 顯示
+  document.getElementById("toggleFav").textContent =
+    favs.includes(item.id) ? "從最愛移除" : "加入最愛";
+
+  // 更新所有卡片愛心圖示
+  document.querySelectorAll(`.card[data-id="${item.id}"] .heart`)
+    .forEach(h => {
+      if (favs.includes(item.id)) {
+        h.classList.add('active');
+        h.innerHTML = '♥';
+      } else {
+        h.classList.remove('active');
+        h.innerHTML = '♡';
+      }
+    });
+}
+
 </script>
 
 </body>
