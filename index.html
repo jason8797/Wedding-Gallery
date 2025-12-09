@@ -333,8 +333,8 @@
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></circle></svg>
           <input id="searchInput" placeholder="搜尋（地點/詞）..." />
         </div>
-        <button class="btn" id="shuffleBtn" title="隨機排列">隨機</button>
-        <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>
+        <button class="btn" id="shuffleBtn" title="隨機排列">隨機排列</button>
+        <!--<button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>-->
         <!--<button class="btn" id="slideshowBtn" title="投影片模式">投影片播放</button>-->
       </div>
     </header>
@@ -570,6 +570,7 @@
       openFull.onclick = () => window.open(it.full, '_blank');
 
       modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
+      updateModalIndex();
     }
     function closeModal() { const modal=document.getElementById('modal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.getElementById('modalImg').src=''; }
     function modalNext() {
@@ -745,6 +746,13 @@
         showPhotoInModal(currentIndex);
       }
     };
+
+    // ---- 修正：更新 Modal 顯示的圖片編號 ----
+    function updateModalIndex() {
+      const current = currentIndex + 1;   // 要 +1 才是人類看到的編號
+      const total = galleryPhotos.length; // 你的全部照片陣列
+      document.getElementById("modalIndex").textContent = `${current} / ${total}`;
+    }
     
 
   </script>
