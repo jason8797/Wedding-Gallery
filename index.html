@@ -570,7 +570,7 @@
       openFull.onclick = () => window.open(it.full, '_blank');
 
       modal.classList.add('open'); modal.setAttribute('aria-hidden','false');
-      updateModalIndex();
+      /*updateModalIndex();*/
     }
     function closeModal() { const modal=document.getElementById('modal'); modal.classList.remove('open'); modal.setAttribute('aria-hidden','true'); document.getElementById('modalImg').src=''; }
     function modalNext() {
