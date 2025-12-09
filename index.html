@@ -402,7 +402,7 @@ async function checkImageExists(url) {
    2. 載入所有圖片（純編號版本）
       photo1 → photo2 → photo3...
    ============================= */
-const TOTAL = 150;          // 最大編號
+const TOTAL = 300;          // 最大編號
 const PHOTOS_PER_PAGE = 20; // 每頁顯示張數
 const items = [];
 
@@ -410,10 +410,10 @@ async function loadAllImages() {
   for (let i = 1; i <= TOTAL; i++) {
     const base = `photo${i}`;
 
-    const jpgThumb = `photos/thumb/${base}.jpg`;
-    const pngThumb = `photos/thumb/${base}.png`;
-    const jpgFull = `photos/full/${base}.jpg`;
-    const pngFull = `photos/full/${base}.png`;
+    const jpgThumb = `photo/thumb/${base}.jpg`;
+    const pngThumb = `photo/thumb/${base}.png`;
+    const jpgFull = `photo/full/${base}.jpg`;
+    const pngFull = `photo/full/${base}.png`;
 
     let thumb = null, full = null, ext = null;
 
