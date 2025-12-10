@@ -502,6 +502,7 @@ function appendCard(item, indexInItems) {
   card.append(img, cap, heart);
   card.addEventListener('click', () => openModal(Number(card.dataset.index)));
   gallery.appendChild(card);
+  hideLoadingBubbleWhenImagesReady();
 }
 
 function updateTotalCount() {
