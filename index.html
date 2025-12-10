@@ -321,15 +321,15 @@
     }
 
     /* --- 強制 modalIndex 在所有情況下置中 --- */
-    #modalIndex {
+    /*#modalIndex {
       flex: 1;
       text-align: center;
-    }
+    }/*
 
     /* 避免右側按鈕群把文字擠偏 */
-    .modal-header-row .meta {
+    /*.modal-header-row .meta {
       flex-shrink: 0;
-    }
+    }*/
 
   </style>
 </head>
@@ -381,10 +381,10 @@
         <aside class="modal-right">
           <div class="modal-header-row">
             <div class="muted" id="modalIndex">0 / 0</div>
-            <div class="meta">
+            <!--<div class="meta">-->
               <!--<button class="btn" id="closeBtn" style="display:none;">關閉</button>-->
-              <button class="btn" id="downloadBtn" style="display:none;">下載</button>
-            </div>
+              <!--<button class="btn" id="downloadBtn" style="display:none;">下載</button>-->
+            <!--</div>-->
           </div>
           <div id="modalTitle" style="font-size:18px;font-weight:600">標題</div>
           <div id="modalDesc" class="muted" style="font-size:14px">簡短描述或拍攝地點</div>
@@ -874,8 +874,6 @@ function hideLoadingBubbleWhenImagesReady() {
     document.getElementById('loadingBubble').style.display = 'none';
   }
 }
-
   </script>
-
 </body>
 </html>
