@@ -735,35 +735,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /* 亂數排序 */
   shuffleBtn.addEventListener('click', () => {
-    for (let i = items.length -1; i>0; i--) {
-      const j = Math.floor(Math.random()*(i+1));
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
       [items[i], items[j]] = [items[j], items[i]];
     }
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML='';
-    const count = Math.min(items.length, PHOTOS_PER_PAGE);
-    for (let i=0;i<count;i++) appendCard(items[i], i);
+
+    // 重新渲染（依最愛模式 or 全部模式）
+    renderGallery();
   });
 
-  /* 最愛按鈕（顯示最愛） */
-  /*favoritesBtn.addEventListener('click', () => {
-    const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
-    const matched = items.filter(it => favs.includes(it.id));
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML='';
-    matched.forEach(it => appendCard(it, items.indexOf(it)));
-  });
-  */
 
-  favoritesBtn.addEventListener("click", () => {
-    if (!isShowingFavorites) {
-      showFavorites();
-      if (!isShowingFavorites && window.innerHeight + window.scrollY >= document.body.offsetHeight - 200) {
-        renderNextPage();
-      }
-    } else {
-      showAllPhotos();
-    }
+  /* ⭐ 我的最愛模式切換 */
+  favoritesBtn.addEventListener('click', () => {
+    isShowingFavorites = !isShowingFavorites;
+    favoritesBtn.textContent = isShowingFavorites ? "顯示全部" : "我的最愛";
+    renderGallery();
   });
 
   /* Modal 控制 */
@@ -802,6 +788,40 @@ function toggleFavoriteFromModal() {
   if (!item) return;
   toggleFavFor(item.id, null);
 }
+
+/* ---- 通用渲染函式 ---- */
+  function renderGallery() {
+    const gallery = document.getElementById('gallery');
+    gallery.innerHTML = "";
+
+    const favs = JSON.parse(localStorage.getItem('wedding_favs') || '[]');
+
+    let listToShow = [];
+
+    if (isShowingFavorites) {
+      listToShow = items.filter(it => favs.includes(it.id));
+    } else {
+      listToShow = items; // 顯示全部
+    }
+
+    // 初始只顯示 PHOTOS_PER_PAGE
+    const count = Math.min(listToShow.length, PHOTOS_PER_PAGE);
+    for (let i = 0; i < count; i++) {
+      appendCard(listToShow[i], items.indexOf(listToShow[i]));
+    }
+
+    document.getElementById('totalCount').textContent = listToShow.length;
+  }
+
+  /* ⭐ 收藏移除後，自動更新最愛畫面 */
+  const originalToggle = toggleFavFor;
+  toggleFavFor = function(id, el) {
+    originalToggle(id, el);
+
+    if (isShowingFavorites) {
+      renderGallery(); // 立刻刷新
+    }
+  };
   </script>
 
 </body>
