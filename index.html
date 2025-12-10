@@ -597,10 +597,10 @@ function showPhotoInModal(index) {
 
   const imgLoader = new Image();
   imgLoader.decoding = "async";
-  imgLoader.src = item.thumb;
+  imgLoader.src = item.full;
 
   imgLoader.onload = () => {
-    modalImg.src = item.full;
+    modalImg.src = item.thumb;
     modalLoading.style.display = "none";
     modalImg.style.display = "block";
   };
