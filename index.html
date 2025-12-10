@@ -421,7 +421,7 @@ let isShowingFavorites = false;
 /* ----------------------------------------------------------
    工具：檢查圖片是否存在
 ---------------------------------------------------------- */
-function checkImageExists(url, timeout = 8000) {
+/*function checkImageExists(url, timeout = 8000) {
   return new Promise(resolve => {
     const img = new Image();
     let done = false;
@@ -431,6 +431,15 @@ function checkImageExists(url, timeout = 8000) {
     img.decoding = 'async';
     img.src = url;
   });
+}*/
+
+async function checkImageExists(url) {
+  try {
+    const res = await fetch(url, { method: 'HEAD' });
+    return res.ok;
+  } catch (e) {
+    return false;
+  }
 }
 
 /* ----------------------------------------------------------
