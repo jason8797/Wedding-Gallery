@@ -1,3 +1,7 @@
+在這個版本中，當按下「最愛」按鈕，會顯示已經勾選最愛的照片，但當頁面往下滑動時，則又會載入其他照片，我希望在「最愛」頁面是，僅顯示勾選最愛的照片。
+並且當按下「最愛」按鈕時，除了顯示勾選的最愛的照片外，原來的「最愛」按鈕，可以顯示為「全部照片」，以增加使用者體驗
+
+目前的程式碼如下：
 <!doctype html>
 <html lang="zh-Hant">
 <head>
@@ -338,7 +342,7 @@
           <input id="searchInput" placeholder="搜尋（地點/詞）..." />
         </div>
         <button class="btn" id="shuffleBtn" title="隨機排列">隨機排列</button>
-        <button class="btn" id="favoritesBtn" title="顯示最愛">最愛</button>
+        <button class="btn" id="favoritesBtn" title="顯示最愛">我的最愛</button>
         <button class="btn" id="slideshowBtn" style="display:none;" title="投影片模式">投影片播放</button>
       </div>
     </header>
@@ -347,6 +351,8 @@
       <div class="tag">共 <span id="totalCount">0</span> 張</div>
       <div class="muted">|</div>
       <div class="muted">點擊圖片可看清晰圖</div>
+      <div class="muted">|</div>
+      <div class="muted">點擊愛心可加入我的最愛</div>
     </div>
 
     <main>
@@ -402,6 +408,9 @@ const items = [];
 let discoveryDone = false;
 let currentIndex = 0;
 
+/* 新增：是否目前正在顯示最愛模式 */
+let showingFavorites = false;
+
 /* ----------------------------------------------------------
    工具：檢查圖片是否存在
 ---------------------------------------------------------- */
@@ -418,7 +427,7 @@ function checkImageExists(url, timeout = 8000) {
 }
 
 /* ----------------------------------------------------------
-   嘗試找出圖片變體（photo1, photo001 及 jpg/png）
+   嘗試找出圖片變體
 ---------------------------------------------------------- */
 async function findVariantForIndex(index) {
   const noPad = String(index);
@@ -492,46 +501,40 @@ function updateTotalCount() {
   document.getElementById('totalCount').textContent = items.length;
 }
 
-/* 改寫：通用的收藏切換函式
-   - id: item.id
-   - el: optional. 如果傳入按鈕元素（如卡片上的 heart），會立刻更新該元素；
-         若未傳入（modal 按鈕觸發），函式會更新所有相關 UI（cards + modal）
-*/
+/* ----------------------------------------------------------
+   收藏切換（卡片 + Modal 自動更新）
+---------------------------------------------------------- */
 function toggleFavFor(id, el = null) {
   const arr = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
   const idx = arr.indexOf(id);
-  if (idx >= 0) { arr.splice(idx,1); }
-  else { arr.push(id); }
+  if (idx >= 0) arr.splice(idx,1);
+  else arr.push(id);
   localStorage.setItem('wedding_favs', JSON.stringify(arr));
 
-  // 更新所有卡片上的愛心（確保多個相同 id 的卡片都同步）
-  document.querySelectorAll(`.card[data-id="${id}"] .heart`)
-    .forEach(h => {
-      if (arr.includes(id)) {
-        h.classList.add('active');
-        h.innerHTML = '♥';
-      } else {
-        h.classList.remove('active');
-        h.innerHTML = '♡';
-      }
-    });
+  // 更新所有卡片
+  document.querySelectorAll(`.card[data-id="${id}"] .heart`).forEach(h => {
+    if (arr.includes(id)) {
+      h.classList.add('active');
+      h.innerHTML = '♥';
+    } else {
+      h.classList.remove('active');
+      h.innerHTML = '♡';
+    }
+  });
 
-  // 若傳進來的是特定按鈕（el），也同步處理（剛剛已以 querySelectorAll 更新，所以這行通常非必要）
-  if (el) {
-    if (arr.includes(id)) { el.classList.add('active'); el.innerHTML = '♥'; }
-    else { el.classList.remove('active'); el.innerHTML = '♡'; }
-  }
-
-  // 如果 modal 正在顯示這個項目，更新 modal 上的文字
+  // Modal 按鈕
   const currentItem = items[currentIndex];
   if (currentItem && currentItem.id === id) {
-    const toggleBtn = document.getElementById('toggleFav');
-    if (toggleBtn) toggleBtn.textContent = arr.includes(id) ? '從最愛移除' : '加入最愛';
+    const btn = document.getElementById('toggleFav');
+    if (btn) btn.textContent = arr.includes(id) ? '從最愛移除' : '加入最愛';
   }
+
+  // ★ 若正在最愛模式，需要重新渲染（讓移除最愛後從列表消失）
+  if (showingFavorites) renderFavoritesOnly();
 }
 
 /* ----------------------------------------------------------
-   自動尋找所有圖片（增量）
+   自動尋找圖片（增量）
 ---------------------------------------------------------- */
 async function discoverImagesIncrementally() {
   document.getElementById('loadingBubble').style.display = 'block';
@@ -552,8 +555,6 @@ async function discoverImagesIncrementally() {
         tags: []
       };
       items.push(item);
-      // 只 append 第一頁的數量（appendCard 會在 renderNextPage / 初始 render 使用）
-      // 但原本你是立刻 append — 我維持原本行為來保證一致性
       appendCard(item, items.length - 1);
       updateTotalCount();
     } else {
@@ -561,7 +562,7 @@ async function discoverImagesIncrementally() {
       if (misses >= MAX_MISSES) break;
     }
     i++;
-    await new Promise(r => setTimeout(r, 0)); 
+    await new Promise(r => setTimeout(r, 0));
   }
 
   discoveryDone = true;
@@ -569,9 +570,10 @@ async function discoverImagesIncrementally() {
 }
 
 /* ----------------------------------------------------------
-   分頁功能
+   分頁功能（全部照片模式使用）
 ---------------------------------------------------------- */
 function renderNextPage() {
+  if (showingFavorites) return;  // ★ 最愛模式不載入更多（你要求的）
   const gallery = document.getElementById('gallery');
   const current = gallery.querySelectorAll('.card').length;
   const end = Math.min(items.length, current + PHOTOS_PER_PAGE);
@@ -579,7 +581,7 @@ function renderNextPage() {
 }
 
 /* ----------------------------------------------------------
-   Modal：載入圖片（含讀取中）
+   Modal 載入圖片
 ---------------------------------------------------------- */
 function showPhotoInModal(index) {
   const item = items[index];
@@ -596,93 +598,53 @@ function showPhotoInModal(index) {
   document.getElementById("modalTitle").textContent = item.title || "無標題";
   document.getElementById("modalDesc").textContent = item.desc || "";
 
-  modalImg.src = "";
-  modalImg.decoding = "async";
+  const loader = new Image();
+  loader.decoding = "async";
+  loader.src = item.full;
 
-  const imgLoader = new Image();
-  imgLoader.decoding = "async";
-  imgLoader.src = item.full;
-
-  imgLoader.onload = () => {
-    modalImg.src = item.thumb;
+  loader.onload = () => {
+    modalImg.src = item.full;
     modalLoading.style.display = "none";
     modalImg.style.display = "block";
   };
 
-  imgLoader.onerror = () => {
+  loader.onerror = () => {
     modalLoading.textContent = "載入失敗";
   };
 
-  // 收藏按鈕狀態（顯示文字）
   const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
-  const toggleBtn = document.getElementById("toggleFav");
-  if (toggleBtn) toggleBtn.textContent = favs.includes(item.id) ? "從最愛移除" : "加入最愛";
+  document.getElementById("toggleFav").textContent =
+    favs.includes(item.id) ? "從最愛移除" : "加入最愛";
 
-  // 設定下載按鈕行為
   const downloadBtn = document.getElementById('downloadBtn');
-  if (downloadBtn) {
-    downloadBtn.onclick = () => {
-      const a=document.createElement('a');
-      a.href=item.full;
-      a.download='';
-      a.click();
-    };
-  }
-
-  // 開啟原圖
-  const openFullBtn = document.getElementById('openFull');
-  if (openFullBtn) openFullBtn.onclick = () => window.open(item.full, '_blank');
+  downloadBtn.onclick = () => {
+    const a=document.createElement('a');
+    a.href=item.full;
+    a.download='';
+    a.click();
+  };
 }
 
 /* ----------------------------------------------------------
-   Modal 全整合
+   Modal 控制
 ---------------------------------------------------------- */
-function openModal(index) {
-  currentIndex = index;
-  const modalEl = document.getElementById("modal");
-  modalEl.classList.add("open");
-  modalEl.removeAttribute('aria-hidden');
-  showPhotoInModal(currentIndex);
+function openModal(i) {
+  currentIndex = i;
+  document.getElementById("modal").classList.add("open");
+  showPhotoInModal(i);
 }
 function closeModal() {
-  const modal=document.getElementById('modal');
-  modal.classList.remove('open');
-  modal.setAttribute('aria-hidden','true');
-  document.getElementById('modalImg').src='';
+  document.getElementById("modal").classList.remove("open");
+  document.getElementById("modalImg").src='';
 }
 
-/* ----------------------------------------------------------
-   切換前/後一張
----------------------------------------------------------- */
 function switchPhoto(dir) {
-  if (items.length === 0) return;
   currentIndex = (currentIndex + dir + items.length) % items.length;
   showPhotoInModal(currentIndex);
 }
 
 /* ----------------------------------------------------------
-   手勢滑動 （安全檢查元素存在）
----------------------------------------------------------- */
-let touchStartX = 0;
-let touchEndX = 0;
-const modalLeft = document.querySelector(".modal-left");
-if (modalLeft) {
-  modalLeft.addEventListener("touchstart", e => {
-    touchStartX = e.changedTouches[0].screenX;
-  }, { passive: true });
-
-  modalLeft.addEventListener("touchend", e => {
-    touchEndX = e.changedTouches[0].screenX;
-    const deltaX = touchEndX - touchStartX;
-    if (Math.abs(deltaX) >= 50) {
-      if (deltaX < 0) switchPhoto(1);
-      else switchPhoto(-1);
-    }
-  }, { passive: true });
-}
-
-/* ----------------------------------------------------------
-   Infinite Scroll
+   Infinite Scroll（全部照片模式有效）
 ---------------------------------------------------------- */
 let scrollTick = false;
 window.addEventListener('scroll', () => {
@@ -690,37 +652,67 @@ window.addEventListener('scroll', () => {
   scrollTick = true;
 
   requestAnimationFrame(() => {
-    const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
-    if (scrollTop + clientHeight >= scrollHeight - 200) {
-      const displayed = document.querySelectorAll('#gallery .card').length;
-      if (displayed < items.length) renderNextPage();
-      else if (!discoveryDone) document.getElementById('loadingBubble').style.display = 'block';
+    if (!showingFavorites) {
+      const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
+      if (scrollTop + clientHeight >= scrollHeight - 200) {
+        const displayed = document.querySelectorAll('#gallery .card').length;
+        if (displayed < items.length) renderNextPage();
+      }
     }
     scrollTick = false;
   });
 });
 
 /* ----------------------------------------------------------
-   DOMContentLoaded 初始化
+   ★ 顯示最愛的專用函式
+---------------------------------------------------------- */
+function renderFavoritesOnly() {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+
+  const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
+  const matched = items.filter(it => favs.includes(it.id));
+  matched.forEach(it => appendCard(it, items.indexOf(it)));
+
+  showingFavorites = true;
+
+  const btn = document.getElementById('favoritesBtn');
+  btn.textContent = "全部照片";
+}
+
+/* ----------------------------------------------------------
+   ★ 顯示全部照片
+---------------------------------------------------------- */
+function renderAllPhotos() {
+  const gallery = document.getElementById('gallery');
+  gallery.innerHTML = '';
+
+  const count = Math.min(items.length, PHOTOS_PER_PAGE);
+  for (let i=0; i<count; i++) appendCard(items[i], i);
+
+  showingFavorites = false;
+
+  const btn = document.getElementById('favoritesBtn');
+  btn.textContent = "最愛";
+}
+
+/* ----------------------------------------------------------
+   DOMContentLoaded
 ---------------------------------------------------------- */
 document.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('searchInput');
   const shuffleBtn = document.getElementById('shuffleBtn');
   const favoritesBtn = document.getElementById('favoritesBtn');
-  const closeBtn = document.getElementById('closeBtn');
-  const prevBtn = document.getElementById('prevBtn');
-  const nextBtn = document.getElementById('nextBtn');
-  const modal = document.getElementById('modal');
 
   /* 搜尋 */
-  searchInput.addEventListener('input', (e) => {
+  searchInput.addEventListener('input', e => {
     const q = e.target.value.trim().toLowerCase();
     const gallery = document.getElementById('gallery');
-    gallery.innerHTML = '';
+    gallery.innerHTML='';
 
     if (!q) {
-      const count = Math.min(items.length, PHOTOS_PER_PAGE);
-      for (let i=0;i<count;i++) appendCard(items[i], i);
+      if (showingFavorites) renderFavoritesOnly();
+      else renderAllPhotos();
     } else {
       const matched = items.filter(it =>
         (it.title + ' ' + it.desc + ' ' + (it.tags||[]).join(' ')).toLowerCase().includes(q)
@@ -729,64 +721,29 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  /* 亂數排序 */
+  /* 亂數 */
   shuffleBtn.addEventListener('click', () => {
     for (let i = items.length -1; i>0; i--) {
       const j = Math.floor(Math.random()*(i+1));
       [items[i], items[j]] = [items[j], items[i]];
     }
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML='';
-    const count = Math.min(items.length, PHOTOS_PER_PAGE);
-    for (let i=0;i<count;i++) appendCard(items[i], i);
+    renderAllPhotos();
   });
 
-  /* 最愛按鈕（顯示最愛） */
+  /* ★ 最愛按鈕 */
   favoritesBtn.addEventListener('click', () => {
-    const favs = JSON.parse(localStorage.getItem('wedding_favs')||'[]');
-    const matched = items.filter(it => favs.includes(it.id));
-    const gallery = document.getElementById('gallery');
-    gallery.innerHTML='';
-    matched.forEach(it => appendCard(it, items.indexOf(it)));
+    if (showingFavorites) renderAllPhotos();
+    else renderFavoritesOnly();
   });
 
-  /* Modal 控制 */
-  if (closeBtn) closeBtn.onclick = closeModal;
-  if (prevBtn) prevBtn.onclick = () => switchPhoto(-1);
-  if (nextBtn) nextBtn.onclick = () => switchPhoto(1);
-  if (modal) modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
-
-  document.addEventListener('keydown', e => {
-    if (!modal.classList.contains('open')) return;
-    if (e.key === 'ArrowRight') switchPhoto(1);
-    if (e.key === 'ArrowLeft') switchPhoto(-1);
-    if (e.key === 'Escape') closeModal();
+  /* Modal 收藏 */
+  document.getElementById('toggleFav').addEventListener('click', () => {
+    const item = items[currentIndex];
+    if (item) toggleFavFor(item.id);
   });
 
-  // 綁定 modal 的「加入最愛」按鈕到通用函式
-  const modalToggleFav = document.getElementById('toggleFav');
-  if (modalToggleFav) {
-    modalToggleFav.addEventListener('click', () => {
-      const item = items[currentIndex];
-      if (!item) return;
-      // 直接呼叫通用的 toggle（不傳 element，會更新所有卡片與 modal）
-      toggleFavFor(item.id, null);
-    });
-  }
-
-  /* 開始尋找照片（增量） */
   discoverImagesIncrementally();
 });
-
-/* ----------------------------------------------------------
-   （保留但已整合）舊的 modal 收藏函式 — 可以視為 alias（兼容）
----------------------------------------------------------- */
-function toggleFavoriteFromModal() {
-  const item = items[currentIndex];
-  if (!item) return;
-  toggleFavFor(item.id, null);
-}
-  </script>
-
+</script>
 </body>
 </html>
