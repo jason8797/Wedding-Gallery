@@ -602,7 +602,6 @@ function renderNextPage() {
   const current = gallery.querySelectorAll('.card').length;
   const end = Math.min(items.length, current + PHOTOS_PER_PAGE);
   for (let i = current; i < end; i++) appendCard(items[i], i);
-    hideLoadingBubbleWhenImagesReady();
 }
 
 /* ----------------------------------------------------------
