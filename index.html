@@ -84,7 +84,7 @@
     /* loading bubble */
     .loading-bubble{position:fixed;right:20px;bottom:20px;background:rgba(0,0,0,0.5);padding:8px 12px;border-radius:999px;color:var(--muted);backdrop-filter:blur(6px);font-size:13px}
     .footer {
-      padding: 10px; /* 上右下左皆為 20px */
+      padding: 10px; /* 上右下左皆為 10px */
     }
     
     
@@ -319,6 +319,18 @@
       border-radius: 10px;
       backdrop-filter: blur(6px);
     }
+
+    /* --- 強制 modalIndex 在所有情況下置中 --- */
+    #modalIndex {
+      flex: 1;
+      text-align: center;
+    }
+
+    /* 避免右側按鈕群把文字擠偏 */
+    .modal-header-row .meta {
+      flex-shrink: 0;
+    }
+
   </style>
 </head>
 <body>
@@ -580,6 +592,7 @@ function renderNextPage() {
   const current = gallery.querySelectorAll('.card').length;
   const end = Math.min(items.length, current + PHOTOS_PER_PAGE);
   for (let i = current; i < end; i++) appendCard(items[i], i);
+    hideLoadingBubbleWhenImagesReady();
 }
 
 /* ----------------------------------------------------------
@@ -699,7 +712,7 @@ window.addEventListener('scroll', () => {
       scrollTick = false; 
       return; 
     }
-    
+
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 200) {
       const displayed = document.querySelectorAll('#gallery .card').length;
@@ -828,6 +841,41 @@ function toggleFavoriteFromModal() {
       renderGallery(); // 立刻刷新
     }
   };
+
+  /* ----------------------------------------------------------
+   當所有已渲染的圖片載入完後，隱藏 loadingBubble
+---------------------------------------------------------- */
+function hideLoadingBubbleWhenImagesReady() {
+  const thumbs = document.querySelectorAll('.thumb');
+  if (thumbs.length === 0) return;
+
+  let loadedCount = 0;
+  thumbs.forEach(img => {
+    if (img.complete) {
+      loadedCount++;
+    } else {
+      img.addEventListener('load', () => {
+        loadedCount++;
+        if (loadedCount === thumbs.length) {
+          document.getElementById('loadingBubble').style.display = 'none';
+        }
+      });
+      img.addEventListener('error', () => {
+        loadedCount++;
+        if (loadedCount === thumbs.length) {
+          document.getElementById('loadingBubble').style.display = 'none';
+        }
+      });
+    }
+  });
+
+  // 若全部都已經 complete（很快）
+  if (loadedCount === thumbs.length) {
+    document.getElementById('loadingBubble').style.display = 'none';
+  }
+}
+
   </script>
+
 </body>
 </html>
