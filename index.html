@@ -597,7 +597,7 @@ function showPhotoInModal(index) {
 
   const imgLoader = new Image();
   imgLoader.decoding = "async";
-  imgLoader.src = item.full;
+  imgLoader.src = item.thumb;
 
   imgLoader.onload = () => {
     modalImg.src = item.full;
