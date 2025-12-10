@@ -694,6 +694,12 @@ window.addEventListener('scroll', () => {
   scrollTick = true;
 
   requestAnimationFrame(() => {
+    /* ⭐ 修正：在「我的最愛模式」下停止無限捲動載入 */
+    if (isShowingFavorites) { 
+      scrollTick = false; 
+      return; 
+    }
+    
     const { scrollTop, scrollHeight, clientHeight } = document.documentElement;
     if (scrollTop + clientHeight >= scrollHeight - 200) {
       const displayed = document.querySelectorAll('#gallery .card').length;
@@ -823,6 +829,5 @@ function toggleFavoriteFromModal() {
     }
   };
   </script>
-
 </body>
 </html>
