@@ -450,11 +450,10 @@ async function findVariantForIndex(index) {
     {thumb:`${THUMB_DIR}/photo${pad3}.png`, full:`${FULL_DIR}/photo${pad3}.png`, ext:'png', namePart:pad3},
   ];
 
-  //for (const c of candidates) {
-  //  if (await checkImageExists(c.thumb)) return c;
-  //}
-  //return null;
-//}
+  const results = await Promise.all(
+    candidates.map(c => checkImageExists(c.thumb).then(exists => exists ? c : null))
+  );
+  return results.find(r => r !== null) || null;
 
 /* ----------------------------------------------------------
    從檔名取標題
